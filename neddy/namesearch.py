@@ -1,10 +1,10 @@
 #!/usr/local/bin/python
 # encoding: utf-8
 """
-conesearch.py
+namesearch.py
 =============
 :Summary:
-    Perform a conesearch on NED
+    A Name Searcher for NED
 
 :Author:
     David Young
@@ -24,38 +24,35 @@ conesearch.py
 ################# GLOBAL IMPORTS ####################
 import sys
 import os
-os.environ['TERM'] = 'vt100'
 import readline
 import glob
 import pickle
+import urllib
 from docopt import docopt
 from dryxPython import webcrawlers as dwc
-from dryxPython import astrotools as dat
 from dryxPython import logs as dl
 from dryxPython import commonutils as dcu
 from dryxPython.projectsetup import setup_main_clutil
 from neddy import _basesearch
-# from ..__init__ import *
-
 
 ###################################################################
 # CLASSES                                                         #
 ###################################################################
-class conesearch(_basesearch):
+
+
+class namesearch(_basesearch):
 
     """
-    The worker class for the conesearch module
+    The worker class for the namesearch module
 
     **Key Arguments:**
         - ``log`` -- logger
-        - ``ra`` -- ra
-        - ``dec`` -- dec
-        - ``radiusArcsec`` -- radiusArcsec
-        - ``nearestOnly`` -- return only the nearest object from NED
-        - ``unclassified`` -- include the unclassified sources in the return results
+        - ``name`` -- name
+        - ``quiet`` -- don't print to stdout
+
 
     **Todo**
-        - @review: when complete, clean conesearch class
+        - @review: when complete, clean namesearch class
         - @review: when complete add logging
         - @review: when complete, decide whether to abstract class to another module
     """
@@ -64,34 +61,31 @@ class conesearch(_basesearch):
     # to __init__
 
     def __init__(
-        self,
-        log,
-        ra,
-        dec,
-        radiusArcsec,
-        nearestOnly=False,
-        unclassified=False
+            self,
+            log,
+            names,
+            quiet=False
     ):
         self.log = log
-        self.log.debug("instansiating a new 'conesearch' object")
-        self.ra = ra
-        self.dec = dec
-        self.arcsec = radiusArcsec
-        self.nearestOnly = nearestOnly
-        self.unclassified = unclassified
+        log.debug("instantiating a new 'namesearch' object")
+        self.names = names
+        self.quiet = quiet
 
         # xt-self-arg-tmpx
 
         # 2. @flagged: what are the default attrributes each object could have? Add them to variable attribute set here
         # Variable Data Atrributes
-        self.arcmin = float(self.arcsec) / 60.
         self.resultSpacing = 20
 
         # 3. @flagged: what variable attrributes need overriden in any baseclass(es) used
         # Override Variable Data Atrributes
 
         # Initial Actions
-        self._convert_coordinates_to_decimal_degrees()
+        os.environ['TERM'] = 'vt100'
+        if not isinstance(self.names, list):
+            self.uplist = [self.names]
+        else:
+            self.uplist = self.names
 
         return None
 
@@ -102,10 +96,10 @@ class conesearch(_basesearch):
     # 4. @flagged: what actions does each object have to be able to perform? Add them here
     # Method Attributes
     def get(self):
-        """get the conesearch object
+        """get the namesearch object
 
         **Return:**
-            - ``conesearch``
+            - ``namesearch``
 
         **Todo**
             - @review: when complete, clean get method
@@ -113,11 +107,13 @@ class conesearch(_basesearch):
         """
         self.log.info('starting the ``get`` method')
 
+        self.theseBatches = self._split_incoming_queries_into_batches(
+            sources=self.uplist)
         self._build_api_url_and_download_results()
-        self._parse_the_ned_position_results()
+        results = self._parse_the_ned_list_results()
 
         self.log.info('completed the ``get`` method')
-        return conesearch
+        return results
 
     # use the tab-trigger below for new method
     def _build_api_url_and_download_results(
@@ -137,36 +133,65 @@ class conesearch(_basesearch):
         self.log.info(
             'starting the ``_build_api_url_and_download_results`` method')
 
-        raDeg = self.raDeg
-        decDeg = self.decDeg
-        arcmin = self.arcmin
+        baseUrl = "https://ned.ipac.caltech.edu/cgi-bin/"
+        command = "gmd"
+        uplist = self.uplist  # note newline `%0D%0`
+        urlParameters = {
+            "delimiter": "bar",
+            "NO_LINKS": "1",
+            "nondb": ["row_count", "user_name_msg", "user_objname"],
+            "crosid": "objname",
+            "enotes": "objnote",
+            "position": ["ra,dec", "bhextin", "pretype", "z", "zunc", "zflag"],
+            "gadata": ["magnit", "sizemaj", "sizemin", "morphol"],
+            "attdat_CON": ["M", "S", "H", "R", "z"],
+            "distance_CON": ["mm", "dmpc"],
+            "attdat": "attned"
+        }
 
-        if self.unclassified:
-            url = "http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Near+Position+Search&in_csys=Equatorial&in_equinox=J2000.0&lon=%(raDeg)sd&lat=%(decDeg)sd&radius=%(arcmin)s&&hconst=73&omegam=0.27&omegav=0.73&corr_z=1&z_constraint=Unconstrained&z_value1=&z_value2=&z_unit=z&ot_include=ANY&in_objtypes1=Galaxies&in_objtypes1=GPairs&in_objtypes1=GTriples&in_objtypes1=GGroups&in_objtypes1=GClusters&in_objtypes1=QSO&in_objtypes1=QSOGroups&in_objtypes1=GravLens&in_objtypes1=AbsLineSys&in_objtypes1=EmissnLine&in_objtypes2=Radio&in_objtypes2=SmmS&in_objtypes2=Infrared&in_objtypes2=Visual&in_objtypes2=UvSource&in_objtypes2=UVExcess&in_objtypes2=Xray&in_objtypes2=GammaRay&search_type=Near+Position+Search&nmp_op=ANY&out_csys=Equatorial&out_equinox=J2000.0&obj_sort=Distance+to+search+center&of=pre_text&zv_breaker=30000.0&list_limit=5&img_stamp=YES&of=ascii_bar" % locals(
-            )
-        else:
-            url = "http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Near+Position+Search&in_csys=Equatorial&in_equinox=J2000.0&lon=%(raDeg)sd&lat=%(decDeg)sd&radius=%(arcmin)s&hconst=73&omegam=0.27&omegav=0.73&corr_z=1&z_constraint=Unconstrained&z_value1=&z_value2=&z_unit=z&ot_include=ANY&in_objtypes1=Galaxies&in_objtypes1=GPairs&in_objtypes1=GTriples&in_objtypes1=GGroups&in_objtypes1=GClusters&in_objtypes1=QSO&in_objtypes1=QSOGroups&in_objtypes1=GravLens&in_objtypes1=AbsLineSys&in_objtypes1=EmissnLine&nmp_op=ANY&out_csys=Equatorial&out_equinox=J2000.0&obj_sort=Distance+to+search+center&of=pre_text&zv_breaker=30000.0&list_limit=5&img_stamp=YES&of=ascii_bar" % locals(
-            )
+        queryBase = "%(baseUrl)s%(command)s?uplist=" % locals()
+        queryList = []
 
-        self.nedResults = dwc.singleWebDocumentDownloader(
-            url=url,
-            downloadDirectory="/tmp",
+        for batch in self.theseBatches:
+            thisLength = len(batch)
+            queryUrl = queryBase
+            for thisIndex, thisName in enumerate(batch):
+                queryUrl = queryUrl + urllib.quote(thisName)
+                if thisIndex < thisLength - 1:
+                    queryUrl = queryUrl + "%0D"
+
+            for k, v in urlParameters.iteritems():
+                if isinstance(v, list):
+                    for item in v:
+                        queryUrl = queryUrl + "&" + \
+                            k + "=" + urllib.quote(item)
+                else:
+                    queryUrl = queryUrl + "&" + k + "=" + urllib.quote(v)
+
+            queryList.append(queryUrl)
+
+        self.nedResults = dwc.multiWebDocumentDownloader(
+            urlList=queryList,
+            # directory(ies) to download the documents to - can be one url or a
+            # list of urls the same length as urlList
+            downloadDirectory="/tmp/",
             log=self.log,
             timeStamp=1,
-            credentials=False
+            timeout=3600,
+            concurrentDownloads=5,
+            resetFilename=False,
+            credentials=False,  # { 'username' : "...", "password", "..." }
+            longTime=True
         )
+
+        self._convert_html_to_csv()
 
         self.log.info(
             'completed the ``_build_api_url_and_download_results`` method')
         return None
 
-    # use the tab-trigger below for new method
     # xt-class-method
 
     # 5. @flagged: what actions of the base class(es) need ammending? ammend them here
     # Override Method Attributes
     # method-override-tmpx
-
-
-if __name__ == '__main__':
-    main()
