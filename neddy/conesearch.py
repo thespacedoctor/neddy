@@ -28,6 +28,7 @@ os.environ['TERM'] = 'vt100'
 import readline
 import glob
 import pickle
+import urllib
 from docopt import docopt
 from dryxPython import webcrawlers as dwc
 from dryxPython import astrotools as dat
@@ -35,6 +36,7 @@ from dryxPython import logs as dl
 from dryxPython import commonutils as dcu
 from dryxPython.projectsetup import setup_main_clutil
 from neddy import _basesearch
+from neddy import namesearch
 # from ..__init__ import *
 
 
@@ -53,6 +55,10 @@ class conesearch(_basesearch):
         - ``radiusArcsec`` -- radiusArcsec
         - ``nearestOnly`` -- return only the nearest object from NED
         - ``unclassified`` -- include the unclassified sources in the return results
+        - ``quiet`` -- don't print to stdout
+        - ``listOfCoordinates`` -- list Of Coordinates ra dec radiusArcsec
+        - ``outputFilePath`` -- path to output file
+        - ``verbose`` -- return more metadata for matches
 
     **Todo**
         - @review: when complete, clean conesearch class
@@ -60,17 +66,19 @@ class conesearch(_basesearch):
         - @review: when complete, decide whether to abstract class to another module
     """
     # Initialisation
-    # 1. @flagged: what are the unique attrributes for each object? Add them
-    # to __init__
 
     def __init__(
         self,
         log,
-        ra,
-        dec,
-        radiusArcsec,
+        ra=False,
+        dec=False,
+        radiusArcsec=False,
         nearestOnly=False,
-        unclassified=False
+        unclassified=False,
+        quiet=False,
+        listOfCoordinates=False,
+        outputFilePath=False,
+        verbose=False
     ):
         self.log = log
         self.log.debug("instansiating a new 'conesearch' object")
@@ -79,28 +87,25 @@ class conesearch(_basesearch):
         self.arcsec = radiusArcsec
         self.nearestOnly = nearestOnly
         self.unclassified = unclassified
-
+        self.quiet = quiet
+        self.listOfCoordinates = listOfCoordinates
+        self.outputFilePath = outputFilePath
+        self.verbose = verbose
         # xt-self-arg-tmpx
 
-        # 2. @flagged: what are the default attrributes each object could have? Add them to variable attribute set here
-        # Variable Data Atrributes
+        # VARIABLE DATA ATRRIBUTES
         self.arcmin = float(self.arcsec) / 60.
-        self.resultSpacing = 20
-
-        # 3. @flagged: what variable attrributes need overriden in any baseclass(es) used
-        # Override Variable Data Atrributes
+        self.resultSpacing = 30
 
         # Initial Actions
+        # CREATE A LIST IF SINGLE COORDINATES GIVEN
+        if not self.listOfCoordinates:
+            self.listOfCoordinates = [ra + " " + dec]
         self._convert_coordinates_to_decimal_degrees()
 
         return None
 
-    def close(self):
-        del self
-        return None
-
-    # 4. @flagged: what actions does each object have to be able to perform? Add them here
-    # Method Attributes
+    # METHOD ATTRIBUTES
     def get(self):
         """get the conesearch object
 
@@ -113,16 +118,30 @@ class conesearch(_basesearch):
         """
         self.log.info('starting the ``get`` method')
 
-        self._build_api_url_and_download_results()
-        self._parse_the_ned_position_results()
+        # SEARCH NED WITH SINGLE CONESEARCHES TO RETURN LIST OF MATCHED NAMES
+        names, searchParams = self._get_crossmatch_names()
+
+        # NOW PERFORM A NAME SEARCH AGAINST THE MATCHED NAMES
+        search = namesearch.namesearch(
+            log=self.log,
+            names=names,
+            quiet=False,
+            searchParams=searchParams,
+            verbose=self.verbose,
+            outputFilePath=self.outputFilePath
+        )
+        search.get()
 
         self.log.info('completed the ``get`` method')
         return conesearch
 
     # use the tab-trigger below for new method
-    def _build_api_url_and_download_results(
-            self):
-        """ build api url for NED
+    def _single_ned_conesearch(
+            self,
+            raDeg,
+            decDeg,
+            arcsec):
+        """ single ned conesearch
 
         **Key Arguments:**
             # -
@@ -131,22 +150,51 @@ class conesearch(_basesearch):
             - None
 
         **Todo**
-            - @review: when complete, clean _build_api_url_and_download_results method
+            - @review: when complete, clean _single_ned_conesearch method
             - @review: when complete add logging
         """
-        self.log.info(
-            'starting the ``_build_api_url_and_download_results`` method')
+        self.log.info('starting the ``_single_ned_conesearch`` method')
 
-        raDeg = self.raDeg
-        decDeg = self.decDeg
-        arcmin = self.arcmin
+        radArcMin = float(arcsec) / (60.)
 
-        if self.unclassified:
-            url = "http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Near+Position+Search&in_csys=Equatorial&in_equinox=J2000.0&lon=%(raDeg)sd&lat=%(decDeg)sd&radius=%(arcmin)s&&hconst=73&omegam=0.27&omegav=0.73&corr_z=1&z_constraint=Unconstrained&z_value1=&z_value2=&z_unit=z&ot_include=ANY&in_objtypes1=Galaxies&in_objtypes1=GPairs&in_objtypes1=GTriples&in_objtypes1=GGroups&in_objtypes1=GClusters&in_objtypes1=QSO&in_objtypes1=QSOGroups&in_objtypes1=GravLens&in_objtypes1=AbsLineSys&in_objtypes1=EmissnLine&in_objtypes2=Radio&in_objtypes2=SmmS&in_objtypes2=Infrared&in_objtypes2=Visual&in_objtypes2=UvSource&in_objtypes2=UVExcess&in_objtypes2=Xray&in_objtypes2=GammaRay&search_type=Near+Position+Search&nmp_op=ANY&out_csys=Equatorial&out_equinox=J2000.0&obj_sort=Distance+to+search+center&of=pre_text&zv_breaker=30000.0&list_limit=5&img_stamp=YES&of=ascii_bar" % locals(
-            )
-        else:
-            url = "http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Near+Position+Search&in_csys=Equatorial&in_equinox=J2000.0&lon=%(raDeg)sd&lat=%(decDeg)sd&radius=%(arcmin)s&hconst=73&omegam=0.27&omegav=0.73&corr_z=1&z_constraint=Unconstrained&z_value1=&z_value2=&z_unit=z&ot_include=ANY&in_objtypes1=Galaxies&in_objtypes1=GPairs&in_objtypes1=GTriples&in_objtypes1=GGroups&in_objtypes1=GClusters&in_objtypes1=QSO&in_objtypes1=QSOGroups&in_objtypes1=GravLens&in_objtypes1=AbsLineSys&in_objtypes1=EmissnLine&nmp_op=ANY&out_csys=Equatorial&out_equinox=J2000.0&obj_sort=Distance+to+search+center&of=pre_text&zv_breaker=30000.0&list_limit=5&img_stamp=YES&of=ascii_bar" % locals(
-            )
+        url = "http://ned.ipac.caltech.edu/cgi-bin/objsearch"
+        params = {
+            "in_csys": "Equatorial",
+            "in_equinox": "J2000.0",
+            "lon": "%(raDeg)0.6fd" % locals(),
+            "lat": "%(decDeg)0.6fd" % locals(),
+            "radius": "%(radArcMin)0.6s" % locals(),
+            "hconst": "73",
+            "omegam": "0.27",
+            "omegav": "0.73",
+            "corr_z": "1",
+            "z_constraint": "Unconstrained",
+            "z_value1": "",
+            "z_value2": "",
+            "z_unit": "z",
+            "ot_include": "ANY",
+            "nmp_op": "ANY",
+            "out_csys": "Equatorial",
+            "out_equinox": "J2000.0",
+            "obj_sort": "Distance to search center",
+            "of": "ascii_bar",
+            "zv_breaker": "30000.0",
+            "list_limit": "500",
+            "img_stamp": "NO",
+            "search_type": "Near Position Search",
+        }
+
+        url = url + "?" + urllib.urlencode(params)
+        if not self.unclassified:
+            url = url + "&" + urllib.urlencode({"ot_include": "ANY"})
+            in_objtypes1 = ["Galaxies", "GPairs", "GTriples", "GGroups",
+                            "GClusters", "QSO", "QSOGroups", "GravLens", "AbsLineSys", "EmissnLine"]
+            for o in in_objtypes1:
+                url = url + "&" + urllib.urlencode({"in_objtypes1": o})
+            in_objtypes3 = ["Supernovae", "HIIregion", "PN", "SNR", "StarAssoc", "StarClust", "MolCloud", "Nova", "VarStar", "WolfRayet",
+                            "CarbonStar", "PofG", "Other", "Star", "BlueStar", "RedStar", "Pulsar", "ReflNeb", "DblStar", "EmissnObj", "EmissnNeb", "WhiteDwarf"]
+            for o in in_objtypes3:
+                url = url + "&" + urllib.urlencode({"in_objtypes3": o})
 
         self.nedResults = dwc.singleWebDocumentDownloader(
             url=url,
@@ -156,9 +204,47 @@ class conesearch(_basesearch):
             credentials=False
         )
 
-        self.log.info(
-            'completed the ``_build_api_url_and_download_results`` method')
-        return None
+        results = self._parse_the_ned_position_results(
+            ra=raDeg,
+            dec=decDeg
+        )
+
+        self.log.info('completed the ``_single_ned_conesearch`` method')
+        return results
+
+    # use the tab-trigger below for new method
+    def _get_crossmatch_names(
+            self):
+        """ get corssmatch names
+
+        **Key Arguments:**
+            # -
+
+        **Return:**
+            - None
+
+        **Todo**
+            - @review: when complete, clean _get_crossmatch_names method
+            - @review: when complete add logging
+        """
+        self.log.info('starting the ``_get_crossmatch_names`` method')
+
+        names = []
+        searchParams = []
+        for i, coord in enumerate(self.listOfCoordinates):
+            results = self._single_ned_conesearch(
+                raDeg=coord[0],
+                decDeg=coord[1],
+                arcsec=self.arcsec
+            )
+
+            for r in results:
+                searchParams.append(
+                    {"searchIndex": i + 1, "searchRa": r["searchRa"], "searchDec": r["searchDec"]})
+                names.append(r["matchName"])
+
+        self.log.info('completed the ``_get_crossmatch_names`` method')
+        return names, searchParams
 
     # use the tab-trigger below for new method
     # xt-class-method

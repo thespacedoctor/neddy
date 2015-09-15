@@ -12,33 +12,20 @@ cl_utils.py
 :Date Created:
     May 7, 2015
 
-:dryx syntax:
-    - ``_someObject`` = a 'private' object that should only be changed for debugging
-
-:Notes:
-    - If you have any questions requiring this script/module please email me: d.r.young@qub.ac.uk
-
-:Tasks:
-    @review: when complete pull all general functions and classes into dryxPython
-
-    neddy --host=<host> --user=<user> --passwd=<passwd> --dbName=<dbName>
-    neddy --option <argument>
-    neddy [<optional-argument>]
-    neddy --another-option=<with-argument>
-    neddy (--either-that-option | <or-this-argument>)
-    neddy <repeating-argument> <repeating-argument>...
-
 Usage:
-    neddy cone [-nu] <ra> <dec> <radiusArcsec>
-    neddy obj <objectName> <objectName>...
+    neddy [-nuv] cone (filelist <pathToCoordinateList> <radiusArcsec> | <ra> <dec> <radiusArcsec>) [<outPutFile>]
+    neddy [-v] obj <objectName> [<objectName>...]
     
     -h, --help            show this help message
     -n, --nearest         nearest object only
     -u, --unclassified    include unclassifed extra-galaxtic objects
+    -v, --verbose         return more metadata for matches
     ra                    ra (decimal degrees or sexegesimal)
     dec                   dec (decimal degrees or sexegesimal)
     radiusArcsec          radiusArcsec (conesearch radius)
     objectName            objectName (the name of the object)
+    pathToCoordinateList  path to list of ra dec radiusArcsec
+    outPutFile            path to outputfile
 """
 ################# GLOBAL IMPORTS ####################
 import sys
@@ -69,7 +56,7 @@ def main(arguments=None):
         arguments=arguments,
         docString=__doc__,
         logLevel="ERROR",
-        options_first=False
+        options_first=True
     )
     arguments, settings, log, dbConn = su.setup()
 
@@ -129,19 +116,41 @@ def main(arguments=None):
 
     # call the worker function
     # x-if-settings-or-database-credientials
-    if cone:
+    if cone and filelist:
+        import codecs
+        pathToReadFile = pathToCoordinateList
+        readFile = codecs.open(pathToReadFile, encoding='utf-8', mode='r')
+
+        listOfCoordinates = []
+        for line in readFile.readlines():
+            line = line.strip()
+            [ra, dec] = line.split()
+            listOfCoordinates.append(str(ra) + " " + str(dec))
         search = conesearch(
             log=log,
-            ra=float(ra),
-            dec=float(dec),
-            radiusArcsec=float(radiusArcsec),
+            radiusArcsec=radiusArcsec,
             nearestOnly=nearestFlag,
-            unclassified=unclassifiedFlag
+            unclassified=unclassifiedFlag,
+            listOfCoordinates=listOfCoordinates,
+            outputFilePath=outPutFile,
+            verbose=verboseFlag)
+    elif cone:
+        search = conesearch(
+            log=log,
+            ra=ra,
+            dec=dec,
+            radiusArcsec=radiusArcsec,
+            nearestOnly=nearestFlag,
+            unclassified=unclassifiedFlag,
+            outputFilePath=outPutFile,
+            verbose=verboseFlag
         )
     elif obj:
         search = namesearch(
             log=log,
-            names=objectName
+            names=objectName,
+            verbose=verboseFlag,
+            outputFilePath=outPutFile
         )
     search.get()
 

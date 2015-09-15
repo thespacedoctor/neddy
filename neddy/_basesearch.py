@@ -17,9 +17,6 @@ _basesearch.py
 
 :Notes:
     - If you have any questions requiring this script/module please email me: d.r.young@qub.ac.uk
-
-:Tasks:
-    @review: when complete pull all general functions and classes into dryxPython
 """
 ################# GLOBAL IMPORTS ####################
 import sys
@@ -37,19 +34,12 @@ from dryxPython import astrotools as dat
 from dryxPython import logs as dl
 from dryxPython import commonutils as dcu
 from dryxPython.projectsetup import setup_main_clutil
-# from ..__init__ import *
 
 
-###################################################################
-# CLASSES                                                         #
-###################################################################
 class _basesearch:
 
     """
-    The worker class for the NED _basesearch module
-
-    **Key Arguments:**
-        - ``log`` -- logger
+    The base-class for searching NED
     """
     # Initialisation
 
@@ -61,60 +51,51 @@ class _basesearch:
     def _convert_coordinates_to_decimal_degrees(
             self):
         """convert coordinates to decimal degrees
-
-        **Key Arguments:**
-            # -
-
-        **Return:**
-            - None
-
-        **Todo**
-            - @review: when complete, clean _convert_coordinates_to_decimal_degrees method
-            - @review: when complete add logging
-            - @soon: fold in the code from astrotools to remove dependence
-            - @soon: make a snippet for this method for future classes
         """
         self.log.info(
             'starting the ``_convert_coordinates_to_decimal_degrees`` method')
 
         from dryxPython import astrotools as dat
 
-        try:
-            self.raDeg = float(self.ra)
-        except:
-            self.raDeg = dat.ra_sexegesimal_to_decimal.ra_sexegesimal_to_decimal(
-                ra=ra)
-        try:
-            self.decDeg = float(self.dec)
-        except:
-            self.decDeg = dat.declination_sexegesimal_to_decimal.declination_sexegesimal_to_decimal(
-                dec=self.dec)
+        # CONVERT ALL COORDINATES TO DECIMAL DEGREES
+        sources = self.listOfCoordinates[:]
+        self.listOfCoordinates = []
+        for source in sources:
+            source = source.split(" ")
+            try:
+                raDeg = float(source[0])
+            except:
+                raDeg = dat.ra_sexegesimal_to_decimal.ra_sexegesimal_to_decimal(
+                    ra=source[0])
+            try:
+                decDeg = float(source[1])
+            except:
+                decDeg = dat.declination_sexegesimal_to_decimal.declination_sexegesimal_to_decimal(
+                    dec=source[1])
+            self.listOfCoordinates.append([raDeg, decDeg])
 
         self.log.info(
             'completed the ``_convert_coordinates_to_decimal_degrees`` method')
         return None
 
-    # use the tab-trigger below for new method
     def _parse_the_ned_position_results(
-            self):
+            self,
+            ra,
+            dec):
         """ parse the ned results
 
         **Key Arguments:**
-            # -
+            - ``ra`` -- the search ra
+            - ``dec`` -- the search dec
 
         **Return:**
-            - None
-
-        **Todo**
-            - @review: when complete, clean _parse_the_ned_results method
-            - @review: when complete add logging
+            - ``results`` -- list of result dictionaries
         """
         self.log.info('starting the ``_parse_the_ned_results`` method')
 
         results = []
-        headers = ["objectName", "objectType", "raDeg", "decDeg",
-                   "redshift", "redshiftFlag", "arcminSeparation", "sepN", "sepE"]
         if self.nedResults:
+            # OPEN THE RESULT FILE FROM NED
             pathToReadFile = self.nedResults
             try:
                 self.log.debug("attempting to open the file %s" %
@@ -129,68 +110,26 @@ class _basesearch:
                 raise IOError(message)
             readFile.close()
 
+            # CHECK FOR ERRORS
+            if "Results from query to  NASA/IPAC Extragalactic Database" not in thisData:
+                print "something went wrong with the NED query"
+                self.log.error(
+                    "something went wrong with the NED query" % locals())
+                sys.exit(0)
+
+            # SEARCH FROM MATCHES IN RESULTS FILE
             matchObject = re.search(
                 r"No\.\|Object Name.*?\n(.*)", thisData, re.S)
             if matchObject:
-                # Print the header for stdout
-                thisHeader = "| "
-                for head in headers:
-                    thisHeader += str(head).ljust(self.resultSpacing,
-                                                  ' ') + " | "
-                if not self.quiet:
-                    print thisHeader
                 theseLines = string.split(matchObject.group(), '\n')
                 csvReader = csv.DictReader(
                     theseLines, dialect='excel', delimiter='|', quotechar='"')
                 for row in csvReader:
-                    thisDict = {}
-                    thisRow = "| "
-                    thisDict["raDeg"] = row["RA(deg)"].strip()
-                    thisDict["decDeg"] = row["DEC(deg)"].strip()
-                    thisDict["redshift"] = row["Redshift"].strip()
-                    thisDict["redshiftFlag"] = row["Redshift Flag"].strip()
-                    thisDict["objectName"] = row["Object Name"].strip()
-                    thisDict["objectType"] = row["Type"].strip()
-                    thisDict["arcminSeparation"] = row[
-                        "Distance (arcmin)"].strip()
-
-                    angularSeparation, northSep, eastSep = dat.get_angular_separation(
-                        log=self.log,
-                        ra1=self.ra,
-                        dec1=self.dec,
-                        ra2=thisDict["raDeg"],
-                        dec2=thisDict["decDeg"]
-                    )
-
-                    thisDict["arcminSeparation"] = angularSeparation
-                    thisDict["sepN"] = northSep
-                    thisDict["sepE"] = eastSep
-
-                    results.append(thisDict)
-                    for head in headers:
-                        thisRow += str(thisDict[head]
-                                       ).ljust(self.resultSpacing, ' ') + " | "
-                    if not self.quiet:
-                        print thisRow
+                    thisEntry = {"searchRa": ra, "searchDec": dec,
+                                 "matchName": row["Object Name"].strip()}
+                    results.append(thisEntry)
                     if self.nearestOnly:
                         break
-            else:
-                for head in headers:
-                    thisRow += str("").ljust(self.resultSpacing, ' ') + " | "
-                if not self.quiet:
-                    print thisRow
-        else:
-            # Print the header for stdout
-            thisHeader = "| "
-            for head in headers:
-                thisHeader += str(head).ljust(self.resultSpacing, ' ') + " | "
-            if not self.quiet:
-                print thisHeader
-            thisRow = "| "
-            for head in headers:
-                thisRow += str("").ljust(self.resultSpacing, ' ') + " | "
-            if not self.quiet:
-                print thisRow
 
         self.log.info('completed the ``_parse_the_ned_results`` method')
         return results
@@ -350,12 +289,26 @@ class _basesearch:
         self.log.info('starting the ``_parse_the_ned_list_results`` method')
 
         results = []
-        headers = ["row_number", "input_note", "input_name", "ned_notes", "ned_name", "ra", "dec", "eb-v", "object_type", "redshift", "redshift_err", "redshift_quality", "magnitude_filter",
-                   "major_diameter_arcmin", "minor_diameter_arcmin", "morphology", "hierarchy", "galaxy_morphology", "radio_morphology", "activity_type", "distance_indicator", "distance_mod", "distance", "row_number"]
+
+        # CHOOSE VALUES TO RETURN
+        allHeaders = ["searchIndex", "searchRa", "searchDec", "row_number", "input_note", "input_name", "ned_notes", "ned_name", "ra", "dec", "eb-v", "object_type", "redshift", "redshift_err", "redshift_quality", "magnitude_filter",
+                      "major_diameter_arcmin", "minor_diameter_arcmin", "morphology", "hierarchy", "galaxy_morphology", "radio_morphology", "activity_type", "distance_indicator", "distance_mod", "distance"]
+        if self.verbose == True:
+            headers = ["searchIndex", "searchRa", "searchDec", "row_number", "input_note", "input_name", "ned_notes", "ned_name", "ra", "dec", "eb-v", "object_type", "redshift", "redshift_err", "redshift_quality", "magnitude_filter",
+                       "major_diameter_arcmin", "minor_diameter_arcmin", "morphology", "hierarchy", "galaxy_morphology", "radio_morphology", "activity_type", "distance_indicator", "distance_mod", "distance"]
+        else:
+            headers = [
+                "searchIndex", "searchRa", "searchDec", "ned_name", "ra", "dec", "object_type", "redshift"]
+
+        if self.theseBatchParams == False:
+            allHeaders = allHeaders[3:]
+            headers = headers[3:]
 
         for thisFile in self.nedResults:
             if thisFile:
                 pathToReadFile = thisFile
+                # FIND THE BATCH INDEX NUMBER
+                thisIndex = int(thisFile.split("/")[-1].split("_")[0])
                 try:
                     self.log.debug("attempting to open the file %s" %
                                    (pathToReadFile,))
@@ -369,24 +322,28 @@ class _basesearch:
                     raise IOError(message)
                 readFile.close()
 
+                # GRAB THE ROWS OF DATA
                 matchObject = re.search(
-                    r"\n(1\s*?\|\s*?.*)", thisData, re.S)
+                    r"\n1\s*?\|\s*?.*", thisData, re.S)
+                thisRow = ""
                 if matchObject:
-                    # Print the header for stdout
                     thisHeader = ""
-                    for head in headers:
+                    for head in allHeaders:
                         thisHeader += str(head).ljust(self.resultSpacing,
                                                       ' ') + " | "
+                    theseLines = string.split(matchObject.group(), '\n')[1:]
+                    if self.theseBatchParams:
+                        newLines = []
+                        for t, b in zip(theseLines, self.theseBatchParams[thisIndex]):
+                            t = "%s | %s | %s | %s " % (
+                                b["searchIndex"], b["searchRa"], b["searchDec"], t)
+                            newLines.append(t)
+                        theseLines = newLines
 
-                    theseLines = string.split(matchObject.group(), '\n')
                     theseLines = [thisHeader] + theseLines
-                    thisHeader = "| " + thisHeader
-                    if not self.quiet:
-                        print thisHeader
                     csvReader = csv.DictReader(
                         theseLines, dialect='excel', delimiter='|', quotechar='"')
                     for row in csvReader:
-                        thisRow = "| "
                         thisDict = {}
                         row = dict(row)
                         for k, v in row.iteritems():
@@ -406,69 +363,51 @@ class _basesearch:
                                 v = v.strip()
                             thisDict[k] = v
                         results.append(thisDict)
-                        for head in headers:
-                            thisRow += str(thisDict[head]
-                                           ).ljust(self.resultSpacing, ' ') + " | "
-                        if not self.quiet:
-                            print thisRow
-
-                else:
-                    for head in headers:
-                        thisRow += str("").ljust(self.resultSpacing,
-                                                 ' ') + " | "
-                    if not self.quiet:
-                        print thisRow
-            else:
-                # Print the header for stdout
-                thisHeader = "| "
-                for head in headers:
-                    thisHeader += str(head).ljust(self.resultSpacing,
-                                                  ' ') + " | "
-                if not self.quiet:
-                    print thisHeader
-                thisRow = "| "
-                for head in headers:
-                    thisRow += str("").ljust(self.resultSpacing, ' ') + " | "
-                if not self.quiet:
-                    print thisRow
 
         self.log.info('completed the ``_parse_the_ned_list_results`` method')
-        return results
+        return results, headers
 
     def _split_incoming_queries_into_batches(
             self,
-            sources):
+            sources,
+            searchParams=False):
         """ split incoming queries into batches
 
         **Key Arguments:**
-            # -
+            - ``sources`` -- sources to split into batches
+            - ``searchParams`` -- search params associated with batches
 
         **Return:**
-            - None
-
-        **Todo**
-            - @review: when complete, clean _split_incoming_queries_into_batches method
-            - @review: when complete add logging
+            - ``theseBatches`` -- list of batches
+            - ``theseBatchParams`` -- params associated with batches
         """
         self.log.info(
             'starting the ``_split_incoming_queries_into_batches`` method')
 
-        batchSize = 300
+        batchSize = 200
         total = len(sources)
         batches = int(total / batchSize) + 1
 
         start = 0
         end = 0
         theseBatches = []
+        theseBatchParams = []
         for i in range(batches):
             end = end + batchSize
             start = i * batchSize
             thisBatch = sources[start:end]
             theseBatches.append(thisBatch)
 
+            if searchParams != False:
+                thisBatch = searchParams[start:end]
+                theseBatchParams.append(thisBatch)
+
+        if len(theseBatchParams) == 0:
+            theseBatchParams = False
+
         self.log.info(
             'completed the ``_split_incoming_queries_into_batches`` method')
-        return theseBatches
+        return theseBatches, theseBatchParams
 
         # use the tab-trigger below for new method
         # xt-class-method

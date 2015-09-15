@@ -27,6 +27,27 @@ class test_conesearch():
         testObject = conesearch(**kwargs)
         testObject.get()
 
+    def test_conesearch_function_02(self):
+
+        import codecs
+        pathToReadFile = pathToInputDir + "/coordinates.txt"
+        readFile = codecs.open(pathToReadFile, encoding='utf-8', mode='r')
+
+        listOfCoordinates = []
+        for line in readFile.readlines():
+            line = line.strip()
+            [ra, dec] = line.split()
+            listOfCoordinates.append(str(ra) + " " + str(dec))
+
+        kwargs = {}
+        kwargs["log"] = log
+        kwargs["nearestOnly"] = False
+        kwargs["unclassified"] = True
+        kwargs["radiusArcsec"] = 29
+        kwargs["listOfCoordinates"] = listOfCoordinates
+        testObject = conesearch(**kwargs)
+        testObject.get()
+
         # x-print-testpage-for-pessto-marshall-web-object
 
     # x-class-to-test-named-worker-function
