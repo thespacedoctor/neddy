@@ -56,7 +56,7 @@ class conesearch(_basesearch):
         - ``nearestOnly`` -- return only the nearest object from NED
         - ``unclassified`` -- include the unclassified sources in the return results
         - ``quiet`` -- don't print to stdout
-        - ``listOfCoordinates`` -- list Of Coordinates ra dec radiusArcsec
+        - ``listOfCoordinates`` -- list of coordinates ra dec radiusArcsec
         - ``outputFilePath`` -- path to output file
         - ``verbose`` -- return more metadata for matches
 
@@ -99,7 +99,7 @@ class conesearch(_basesearch):
 
         # Initial Actions
         # CREATE A LIST IF SINGLE COORDINATES GIVEN
-        if not self.listOfCoordinates:
+        if self.listOfCoordinates == False:
             self.listOfCoordinates = [ra + " " + dec]
         self._convert_coordinates_to_decimal_degrees()
 
@@ -119,7 +119,7 @@ class conesearch(_basesearch):
         self.log.info('starting the ``get`` method')
 
         # SEARCH NED WITH SINGLE CONESEARCHES TO RETURN LIST OF MATCHED NAMES
-        names, searchParams = self._get_crossmatch_names()
+        names, searchParams = self.get_crossmatch_names()
 
         # NOW PERFORM A NAME SEARCH AGAINST THE MATCHED NAMES
         search = namesearch.namesearch(
@@ -136,7 +136,7 @@ class conesearch(_basesearch):
         return conesearch
 
     # use the tab-trigger below for new method
-    def _single_ned_conesearch(
+    def _get_ned_query_url(
             self,
             raDeg,
             decDeg,
@@ -150,10 +150,10 @@ class conesearch(_basesearch):
             - None
 
         **Todo**
-            - @review: when complete, clean _single_ned_conesearch method
+            - @review: when complete, clean _get_ned_query_url method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``_single_ned_conesearch`` method')
+        self.log.info('starting the ``_get_ned_query_url`` method')
 
         radArcMin = float(arcsec) / (60.)
 
@@ -196,24 +196,11 @@ class conesearch(_basesearch):
             for o in in_objtypes3:
                 url = url + "&" + urllib.urlencode({"in_objtypes3": o})
 
-        self.nedResults = dwc.singleWebDocumentDownloader(
-            url=url,
-            downloadDirectory="/tmp",
-            log=self.log,
-            timeStamp=1,
-            credentials=False
-        )
-
-        results = self._parse_the_ned_position_results(
-            ra=raDeg,
-            dec=decDeg
-        )
-
-        self.log.info('completed the ``_single_ned_conesearch`` method')
-        return results
+        self.log.info('completed the ``_get_ned_query_url`` method')
+        return url
 
     # use the tab-trigger below for new method
-    def _get_crossmatch_names(
+    def get_crossmatch_names(
             self):
         """ get corssmatch names
 
@@ -224,26 +211,46 @@ class conesearch(_basesearch):
             - None
 
         **Todo**
-            - @review: when complete, clean _get_crossmatch_names method
+            - @review: when complete, clean get_crossmatch_names method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``_get_crossmatch_names`` method')
+        self.log.info('starting the ``get_crossmatch_names`` method')
 
         names = []
         searchParams = []
+        nedUrls = []
         for i, coord in enumerate(self.listOfCoordinates):
-            results = self._single_ned_conesearch(
+            url = self._get_ned_query_url(
                 raDeg=coord[0],
                 decDeg=coord[1],
                 arcsec=self.arcsec
             )
+            nedUrls.append(url)
 
+        localUrls = dwc.multiWebDocumentDownloader(
+            urlList=nedUrls,
+            # directory(ies) to download the documents to - can be one url or a
+            # list of urls the same length as urlList
+            downloadDirectory="/tmp/",
+            log=self.log,
+            timeout=180,
+            concurrentDownloads=5,
+            indexFilenames=True
+        )
+
+        for self.nedResults in localUrls:
+            if self.nedResults == None:
+                continue
+            i = int(self.nedResults.split("/")[-1].split("_")[0])
+            results = self._parse_the_ned_position_results(
+                ra=self.listOfCoordinates[i][0],
+                dec=self.listOfCoordinates[i][1]
+            )
             for r in results:
                 searchParams.append(
                     {"searchIndex": i + 1, "searchRa": r["searchRa"], "searchDec": r["searchDec"]})
                 names.append(r["matchName"])
-
-        self.log.info('completed the ``_get_crossmatch_names`` method')
+        self.log.info('completed the ``get_crossmatch_names`` method')
         return names, searchParams
 
     # use the tab-trigger below for new method
