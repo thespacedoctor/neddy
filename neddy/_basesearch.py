@@ -355,7 +355,7 @@ class _basesearch:
                                     'cound not strip ned key (%(k)s, %(v)s)' % locals())
                                 self.log.error(
                                     "could not strip ned key - failed with this error: %s " % (str(e),))
-                                return -1
+                                continue
                             if (k == "ra" or k == "dec"):
                                 v = v.replace("h", ":").replace(
                                     "m", ":").replace("d", ":").replace("s", "")
