@@ -255,6 +255,11 @@ class _basesearch:
                 message = 'could not open the file %s' % (pathToReadFile,)
                 self.log.critical(message)
                 raise IOError(message)
+            except:
+                if pathToReadFile == None:
+                    message = 'we have no file to open'
+                    self.log.error(message)
+                    continue
             readFile.close()
 
             self.log.debug("regex 1 - sub")
