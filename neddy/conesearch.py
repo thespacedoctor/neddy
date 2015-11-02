@@ -59,6 +59,7 @@ class conesearch(_basesearch):
         - ``listOfCoordinates`` -- list of coordinates ra dec radiusArcsec
         - ``outputFilePath`` -- path to output file
         - ``verbose`` -- return more metadata for matches
+        - ``redshift`` -- redshift constraint
 
     **Todo**
         - @review: when complete, clean conesearch class
@@ -78,7 +79,8 @@ class conesearch(_basesearch):
         quiet=False,
         listOfCoordinates=False,
         outputFilePath=False,
-        verbose=False
+        verbose=False,
+        redshift=False
     ):
         self.log = log
         self.log.debug("instansiating a new 'conesearch' object")
@@ -91,6 +93,8 @@ class conesearch(_basesearch):
         self.listOfCoordinates = listOfCoordinates
         self.outputFilePath = outputFilePath
         self.verbose = verbose
+        self.redshift = redshift
+
         # xt-self-arg-tmpx
 
         # VARIABLE DATA ATRRIBUTES
@@ -157,6 +161,11 @@ class conesearch(_basesearch):
 
         radArcMin = float(arcsec) / (60.)
 
+        if self.redshift == True:
+            z_constraint = "Available"
+        else:
+            z_constraint = "Unconstrained"
+
         url = "http://ned.ipac.caltech.edu/cgi-bin/objsearch"
         params = {
             "in_csys": "Equatorial",
@@ -168,7 +177,7 @@ class conesearch(_basesearch):
             "omegam": "0.27",
             "omegav": "0.73",
             "corr_z": "1",
-            "z_constraint": "Unconstrained",
+            "z_constraint": z_constraint,
             "z_value1": "",
             "z_value2": "",
             "z_unit": "z",
@@ -182,6 +191,7 @@ class conesearch(_basesearch):
             "list_limit": "500",
             "img_stamp": "NO",
             "search_type": "Near Position Search",
+
         }
 
         url = url + "?" + urllib.urlencode(params)

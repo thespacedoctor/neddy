@@ -13,13 +13,14 @@ cl_utils.py
     May 7, 2015
 
 Usage:
-    neddy [-nuv] cone (filelist <pathToCoordinateList> <radiusArcsec> | <ra> <dec> <radiusArcsec>) [<outPutFile>]
+    neddy [-nuvr] cone (filelist <pathToCoordinateList> <radiusArcsec> | <ra> <dec> <radiusArcsec>) [<outPutFile>]
     neddy [-v] obj <objectName> [<objectName>...]
     
     -h, --help            show this help message
     -n, --nearest         nearest object only
     -u, --unclassified    include unclassifed extra-galaxtic objects
     -v, --verbose         return more metadata for matches
+    -r, --redshift        redshift must be available
     ra                    ra (decimal degrees or sexegesimal)
     dec                   dec (decimal degrees or sexegesimal)
     radiusArcsec          radiusArcsec (conesearch radius)
@@ -133,7 +134,8 @@ def main(arguments=None):
             unclassified=unclassifiedFlag,
             listOfCoordinates=listOfCoordinates,
             outputFilePath=outPutFile,
-            verbose=verboseFlag)
+            verbose=verboseFlag,
+            redshift=redshiftFlag)
     elif cone:
         search = conesearch(
             log=log,
@@ -143,7 +145,8 @@ def main(arguments=None):
             nearestOnly=nearestFlag,
             unclassified=unclassifiedFlag,
             outputFilePath=outPutFile,
-            verbose=verboseFlag
+            verbose=verboseFlag,
+            redshift=redshiftFlag
         )
     elif obj:
         search = namesearch(
