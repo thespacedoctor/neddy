@@ -237,29 +237,45 @@ class conesearch(_basesearch):
             )
             nedUrls.append(url)
 
+        count = len(nedUrls)
+        if count:
+            print "%(count)s NED conesearch URLs have been built. Requesting from NED ..." % locals()
+
         localUrls = dwc.multiWebDocumentDownloader(
             urlList=nedUrls,
             # directory(ies) to download the documents to - can be one url or a
             # list of urls the same length as urlList
             downloadDirectory="/tmp/",
             log=self.log,
-            timeout=180,
-            concurrentDownloads=5,
+            timeout=3600,
+            concurrentDownloads=10,
             indexFilenames=True
         )
 
-        for self.nedResults in localUrls:
+        count = len(localUrls)
+        if count:
+            print "%(count)s conesearch results downloaded from NED" % locals()
+
+        for ii, self.nedResults in enumerate(localUrls):
             if self.nedResults == None:
-                continue
+                thisUrl = nedUrls[ii]
+                self.log.error(
+                    'cound not download results for NED URL: %(thisUrl)s' % locals())
+                sys.exit(0)
             i = int(self.nedResults.split("/")[-1].split("_")[0])
-            results = self._parse_the_ned_position_results(
+            results, resultLen = self._parse_the_ned_position_results(
                 ra=self.listOfCoordinates[i][0],
                 dec=self.listOfCoordinates[i][1]
             )
+            print "  %(resultLen)s returned from single NED conesearch" % locals()
+            if resultLen > 45000:
+                print " To many results returned from single NED query ... aborting!"
+                sys.exit(0)
             for r in results:
                 searchParams.append(
                     {"searchIndex": i + 1, "searchRa": r["searchRa"], "searchDec": r["searchDec"]})
                 names.append(r["matchName"])
+
         self.log.info('completed the ``get_crossmatch_names`` method')
         return names, searchParams
 

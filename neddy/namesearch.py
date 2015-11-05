@@ -172,12 +172,19 @@ class namesearch(_basesearch):
             log=self.log,
             timeStamp=1,
             timeout=3600,
-            concurrentDownloads=5,
+            concurrentDownloads=10,
             resetFilename=False,
             credentials=False,  # { 'username' : "...", "password", "..." }
             longTime=True,
             indexFilenames=True
         )
+
+        for thisIndex, r in enumerate(self.nedResults):
+            if r == None:
+                thisUrl = queryList[thisIndex]
+                self.log.error(
+                    'cound not download NED results for URL %(thisUrl)s' % locals())
+                sys.exit(0)
 
         self._convert_html_to_csv()
 

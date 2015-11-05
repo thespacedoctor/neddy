@@ -122,6 +122,7 @@ class _basesearch:
                 r"No\.\|Object Name.*?\n(.*)", thisData, re.S)
             if matchObject:
                 theseLines = string.split(matchObject.group(), '\n')
+                resultLen = len(theseLines)
                 csvReader = csv.DictReader(
                     theseLines, dialect='excel', delimiter='|', quotechar='"')
                 for row in csvReader:
@@ -132,7 +133,7 @@ class _basesearch:
                         break
 
         self.log.info('completed the ``_parse_the_ned_results`` method')
-        return results
+        return results, resultLen
 
     # use the tab-trigger below for new method
     def _parse_the_ned_object_results(
