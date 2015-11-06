@@ -123,7 +123,10 @@ class conesearch(_basesearch):
         self.log.info('starting the ``get`` method')
 
         # SEARCH NED WITH SINGLE CONESEARCHES TO RETURN LIST OF MATCHED NAMES
-        names, searchParams = self.get_crossmatch_names()
+        names, searchParams = self.get_crossmatch_names(
+            listOfCoordinates=self.listOfCoordinates,
+            radiusArcsec=self.arcsec
+        )
 
         # NOW PERFORM A NAME SEARCH AGAINST THE MATCHED NAMES
         search = namesearch.namesearch(
@@ -211,11 +214,14 @@ class conesearch(_basesearch):
 
     # use the tab-trigger below for new method
     def get_crossmatch_names(
-            self):
+            self,
+            listOfCoordinates=False,
+            radiusArcsec=False):
         """ get corssmatch names
 
         **Key Arguments:**
-            # -
+            - ``listOfCoordinates`` -- list of the coordinates to conesearch
+            - ``radiusArcsec`` -- the search radius
 
         **Return:**
             - None
@@ -226,14 +232,19 @@ class conesearch(_basesearch):
         """
         self.log.info('starting the ``get_crossmatch_names`` method')
 
+        if listOfCoordinates == False:
+            listOfCoordinates = self.listOfCoordinates
+        if radiusArcsec == False:
+            radiusArcsec = self.arcsec
+
         names = []
         searchParams = []
         nedUrls = []
-        for i, coord in enumerate(self.listOfCoordinates):
+        for i, coord in enumerate(listOfCoordinates):
             url = self._get_ned_query_url(
                 raDeg=coord[0],
                 decDeg=coord[1],
-                arcsec=self.arcsec
+                arcsec=radiusArcsec
             )
             nedUrls.append(url)
 
@@ -256,27 +267,86 @@ class conesearch(_basesearch):
         if count:
             print "%(count)s conesearch results downloaded from NED" % locals()
 
-        for ii, self.nedResults in enumerate(localUrls):
-            if self.nedResults == None:
+        for ii, nedResults in enumerate(localUrls):
+            if nedResults == None:
                 thisUrl = nedUrls[ii]
                 self.log.error(
                     'cound not download results for NED URL: %(thisUrl)s' % locals())
                 sys.exit(0)
-            i = int(self.nedResults.split("/")[-1].split("_")[0])
+            i = int(nedResults.split("/")[-1].split("_")[0])
             results, resultLen = self._parse_the_ned_position_results(
-                ra=self.listOfCoordinates[i][0],
-                dec=self.listOfCoordinates[i][1]
+                ra=listOfCoordinates[i][0],
+                dec=listOfCoordinates[i][1],
+                nedResults=nedResults
             )
             print "  %(resultLen)s returned from single NED conesearch" % locals()
             if resultLen > 45000:
                 print " To many results returned from single NED query ... aborting!"
-                sys.exit(0)
-            for r in results:
-                searchParams.append(
-                    {"searchIndex": i + 1, "searchRa": r["searchRa"], "searchDec": r["searchDec"]})
-                names.append(r["matchName"])
+                subnames, subsearchParams = self._oversized_subqueries(
+                    coordinate=listOfCoordinates[i],
+                    radiusArcsec=radiusArcsec
+                )
+                names += subnames
+                searchParams += subsearchParams
+            else:
+                for r in results:
+                    searchParams.append(
+                        {"searchIndex": i + 1, "searchRa": r["searchRa"], "searchDec": r["searchDec"]})
+                    names.append(r["matchName"])
 
         self.log.info('completed the ``get_crossmatch_names`` method')
+        return names, searchParams
+
+    # use the tab-trigger below for new method
+    def _oversized_subqueries(
+            self,
+            coordinate,
+            radiusArcsec):
+        """ subdivide oversized query
+
+        **Key Arguments:**
+            # -
+
+        **Return:**
+            - None
+
+        **Todo**
+            - @review: when complete, clean _oversized_subqueries method
+            - @review: when complete add logging
+        """
+        self.log.info('starting the ``_oversized_subqueries`` method')
+
+        import math
+
+        smallerRadiusArcsec = radiusArcsec / 2.
+        print "Calculating 7 sub-disks for coordinates %(coordinate)s, with smaller search radius of %(smallerRadiusArcsec)s arcsec" % locals()
+
+        ra = coordinate[0]
+        dec = coordinate[1]
+
+        shifts = [
+            (0, 0),
+            (0, math.sqrt(3.) / 2.),
+            (3. / 4., math.sqrt(3.) / 4.),
+            (3. / 4., -math.sqrt(3.) / 4.),
+            (0, -math.sqrt(3.) / 2.),
+            (-3. / 4., -math.sqrt(3.) / 4.),
+            (-3. / 4., math.sqrt(3.) / 4.)
+        ]
+
+        subDiskCoordinates = []
+        count = 0
+        for s in shifts:
+            x1 = ra + s[0] * radiusArcsec / (60 * 60)
+            y1 = dec + s[1] * radiusArcsec / (60 * 60)
+            subDiskCoordinates.append((x1, y1))
+
+        names, searchParams = self.get_crossmatch_names(
+            listOfCoordinates=subDiskCoordinates,
+            radiusArcsec=smallerRadiusArcsec
+        )
+
+        self.log.info('completed the ``_oversized_subqueries`` method')
         return names, searchParams
 
     # use the tab-trigger below for new method

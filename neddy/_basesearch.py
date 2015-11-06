@@ -81,7 +81,8 @@ class _basesearch:
     def _parse_the_ned_position_results(
             self,
             ra,
-            dec):
+            dec,
+            nedResults):
         """ parse the ned results
 
         **Key Arguments:**
@@ -94,9 +95,10 @@ class _basesearch:
         self.log.info('starting the ``_parse_the_ned_results`` method')
 
         results = []
-        if self.nedResults:
+        resultLen = 0
+        if nedResults:
             # OPEN THE RESULT FILE FROM NED
-            pathToReadFile = self.nedResults
+            pathToReadFile = nedResults
             try:
                 self.log.debug("attempting to open the file %s" %
                                (pathToReadFile,))
