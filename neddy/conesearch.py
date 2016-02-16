@@ -272,7 +272,7 @@ class conesearch(_basesearch):
                 thisUrl = nedUrls[ii]
                 self.log.error(
                     'cound not download results for NED URL: %(thisUrl)s' % locals())
-                sys.exit(0)
+                continue
             i = int(nedResults.split("/")[-1].split("_")[0])
             results, resultLen = self._parse_the_ned_position_results(
                 ra=listOfCoordinates[i][0],

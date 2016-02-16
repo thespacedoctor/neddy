@@ -392,7 +392,7 @@ class _basesearch:
         self.log.info(
             'starting the ``_split_incoming_queries_into_batches`` method')
 
-        batchSize = 200
+        batchSize = 180
         total = len(sources)
         batches = int(total / batchSize) + 1
 
