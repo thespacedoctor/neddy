@@ -1,22 +1,13 @@
 #!/usr/local/bin/python
 # encoding: utf-8
 """
-_basesearch.py
-==============
-:Summary:
-    The base class for NED searches
+*The base class for NED searches*
 
 :Author:
     David Young
 
 :Date Created:
     May 6, 2015
-
-:dryx syntax:
-    - ``_someObject`` = a 'private' object that should only be changed for debugging
-
-:Notes:
-    - If you have any questions requiring this script/module please email me: d.r.young@qub.ac.uk
 """
 ################# GLOBAL IMPORTS ####################
 import sys
@@ -33,7 +24,7 @@ from docopt import docopt
 from dryxPython import astrotools as dat
 from dryxPython import logs as dl
 from dryxPython import commonutils as dcu
-from dryxPython.projectsetup import setup_main_clutil
+from fundamentals import tools, times
 
 
 class _basesearch:
@@ -50,7 +41,8 @@ class _basesearch:
 
     def _convert_coordinates_to_decimal_degrees(
             self):
-        """convert coordinates to decimal degrees
+        """
+        *convert coordinates to decimal degrees*
         """
         self.log.info(
             'starting the ``_convert_coordinates_to_decimal_degrees`` method')
@@ -83,7 +75,8 @@ class _basesearch:
             ra,
             dec,
             nedResults):
-        """ parse the ned results
+        """
+        *parse the ned results*
 
         **Key Arguments:**
             - ``ra`` -- the search ra
@@ -140,7 +133,8 @@ class _basesearch:
     # use the tab-trigger below for new method
     def _parse_the_ned_object_results(
             self):
-        """ parse the ned results
+        """
+        *parse the ned results*
 
         **Key Arguments:**
             # -
@@ -148,7 +142,8 @@ class _basesearch:
         **Return:**
             - None
 
-        **Todo**
+        .. todo::
+
             - @review: when complete, clean _parse_the_ned_results method
             - @review: when complete add logging
         """
@@ -226,7 +221,8 @@ class _basesearch:
         # use the tab-trigger below for new method
     def _convert_html_to_csv(
             self):
-        """ contert html to csv
+        """
+        *contert html to csv*
 
         **Key Arguments:**
             # -
@@ -234,7 +230,8 @@ class _basesearch:
         **Return:**
             - None
 
-        **Todo**
+        .. todo::
+
             - @review: when complete, clean _convert_html_to_csv method
             - @review: when complete add logging
         """
@@ -282,7 +279,8 @@ class _basesearch:
     # use the tab-trigger below for new method
     def _parse_the_ned_list_results(
             self):
-        """ parse the ned results
+        """
+        *parse the ned results*
 
         **Key Arguments:**
             # -
@@ -290,7 +288,8 @@ class _basesearch:
         **Return:**
             - None
 
-        **Todo**
+        .. todo::
+
             - @review: when complete, clean _parse_the_ned_results method
             - @review: when complete add logging
         """
@@ -379,7 +378,8 @@ class _basesearch:
             self,
             sources,
             searchParams=False):
-        """ split incoming queries into batches
+        """
+        *split incoming queries into batches*
 
         **Key Arguments:**
             - ``sources`` -- sources to split into batches

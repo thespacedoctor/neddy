@@ -1,10 +1,7 @@
 #!/usr/local/bin/python
 # encoding: utf-8
 """
-namesearch.py
-=============
-:Summary:
-    A Name Searcher for NED
+*A Name Searcher for NED*
 
 :Author:
     David Young
@@ -12,13 +9,8 @@ namesearch.py
 :Date Created:
     May 6, 2015
 
-:dryx syntax:
-    - ``_someObject`` = a 'private' object that should only be changed for debugging
-
-:Notes:
-    - If you have any questions requiring this script/module please email me: d.r.young@qub.ac.uk
-
-:Tasks:
+.. todo::
+    
     @review: when complete pull all general functions and classes into dryxPython
 """
 ################# GLOBAL IMPORTS ####################
@@ -32,7 +24,7 @@ from docopt import docopt
 from dryxPython import webcrawlers as dwc
 from dryxPython import logs as dl
 from dryxPython import commonutils as dcu
-from dryxPython.projectsetup import setup_main_clutil
+from fundamentals import tools, times
 from neddy import _basesearch
 
 ###################################################################
@@ -43,7 +35,7 @@ from neddy import _basesearch
 class namesearch(_basesearch):
 
     """
-    The worker class for the namesearch module
+    *The worker class for the namesearch module*
 
     **Key Arguments:**
         - ``log`` -- logger
@@ -88,7 +80,8 @@ class namesearch(_basesearch):
 
     # METHOD ATTRIBUTES
     def get(self):
-        """get the namesearch object
+        """
+        *get the namesearch object*
 
         **Return:**
             - ``results``
@@ -111,7 +104,8 @@ class namesearch(_basesearch):
 
     def _build_api_url_and_download_results(
             self):
-        """ build api url for NED to perform batch name queries
+        """
+        *build api url for NED to perform batch name queries*
 
         **Key Arguments:**
             # -
@@ -119,7 +113,8 @@ class namesearch(_basesearch):
         **Return:**
             - None
 
-        **Todo**
+        .. todo::
+
             - @review: when complete, clean _build_api_url_and_download_results method
             - @review: when complete add logging
         """
@@ -194,7 +189,8 @@ class namesearch(_basesearch):
 
     def _output_results(
             self):
-        """ output results
+        """
+        *output results*
 
         **Key Arguments:**
             # -
@@ -202,7 +198,8 @@ class namesearch(_basesearch):
         **Return:**
             - None
 
-        **Todo**
+        .. todo::
+
             - @review: when complete, clean _output_results method
             - @review: when complete add logging
         """

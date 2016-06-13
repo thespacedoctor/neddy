@@ -1,10 +1,7 @@
 #!/usr/local/bin/python
 # encoding: utf-8
 """
-conesearch.py
-=============
-:Summary:
-    Perform a conesearch on NED
+*Perform a conesearch on NED*
 
 :Author:
     David Young
@@ -12,13 +9,8 @@ conesearch.py
 :Date Created:
     May 6, 2015
 
-:dryx syntax:
-    - ``_someObject`` = a 'private' object that should only be changed for debugging
-
-:Notes:
-    - If you have any questions requiring this script/module please email me: d.r.young@qub.ac.uk
-
-:Tasks:
+.. todo::
+    
     @review: when complete pull all general functions and classes into dryxPython
 """
 ################# GLOBAL IMPORTS ####################
@@ -34,7 +26,7 @@ from dryxPython import webcrawlers as dwc
 from dryxPython import astrotools as dat
 from dryxPython import logs as dl
 from dryxPython import commonutils as dcu
-from dryxPython.projectsetup import setup_main_clutil
+from fundamentals import tools, times
 from neddy import _basesearch
 from neddy import namesearch
 # from ..__init__ import *
@@ -46,7 +38,7 @@ from neddy import namesearch
 class conesearch(_basesearch):
 
     """
-    The worker class for the conesearch module
+    *The worker class for the conesearch module*
 
     **Key Arguments:**
         - ``log`` -- logger
@@ -61,7 +53,8 @@ class conesearch(_basesearch):
         - ``verbose`` -- return more metadata for matches
         - ``redshift`` -- redshift constraint
 
-    **Todo**
+    .. todo::
+
         - @review: when complete, clean conesearch class
         - @review: when complete add logging
         - @review: when complete, decide whether to abstract class to another module
@@ -111,12 +104,14 @@ class conesearch(_basesearch):
 
     # METHOD ATTRIBUTES
     def get(self):
-        """get the conesearch object
+        """
+        *get the conesearch object*
 
         **Return:**
             - ``conesearch``
 
-        **Todo**
+        .. todo::
+
             - @review: when complete, clean get method
             - @review: when complete add logging
         """
@@ -148,7 +143,8 @@ class conesearch(_basesearch):
             raDeg,
             decDeg,
             arcsec):
-        """ single ned conesearch
+        """
+        *single ned conesearch*
 
         **Key Arguments:**
             # -
@@ -156,7 +152,8 @@ class conesearch(_basesearch):
         **Return:**
             - None
 
-        **Todo**
+        .. todo::
+
             - @review: when complete, clean _get_ned_query_url method
             - @review: when complete add logging
         """
@@ -217,7 +214,8 @@ class conesearch(_basesearch):
             self,
             listOfCoordinates=False,
             radiusArcsec=False):
-        """ get corssmatch names
+        """
+        *get corssmatch names*
 
         **Key Arguments:**
             - ``listOfCoordinates`` -- list of the coordinates to conesearch
@@ -226,7 +224,8 @@ class conesearch(_basesearch):
         **Return:**
             - None
 
-        **Todo**
+        .. todo::
+
             - @review: when complete, clean get_crossmatch_names method
             - @review: when complete add logging
         """
@@ -302,7 +301,8 @@ class conesearch(_basesearch):
             self,
             coordinate,
             radiusArcsec):
-        """ subdivide oversized query
+        """
+        *subdivide oversized query*
 
         **Key Arguments:**
             # -
@@ -310,7 +310,8 @@ class conesearch(_basesearch):
         **Return:**
             - None
 
-        **Todo**
+        .. todo::
+
             - @review: when complete, clean _oversized_subqueries method
             - @review: when complete add logging
         """
