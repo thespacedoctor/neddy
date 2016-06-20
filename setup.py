@@ -1,13 +1,18 @@
-from setuptools import setup
+from setuptools import setup, find_packages
+import os
+
+moduleDirectory = os.path.dirname(os.path.realpath(__file__))
+exec(open(moduleDirectory + "/neddy/__version__.py").read())
 
 
 def readme():
-    with open('README.rst') as f:
+    with open(moduleDirectory + '/README.rst') as f:
         return f.read()
 
-setup(name='neddy',
-      version='0.1',
-      description='',
+
+setup(name="neddy",
+      version=__version__,
+      description="CL-util to query the NASA/IPAC Extragalactic Database (NED)",
       long_description=readme(),
       classifiers=[
           'Development Status :: 4 - Beta',
@@ -15,15 +20,21 @@ setup(name='neddy',
           'Programming Language :: Python :: 2.7',
           'Topic :: Utilities',
       ],
-      keywords='utilities dryx',
-      # url='https://github.com/thespacedoctor/neddy',
-      author='thespacedoctor',
+      keywords=['tools, NED'],
+      url='https://github.com/thespacedoctor/neddy',
+      download_url='https://github.com/thespacedoctor/neddy/archive/v%(__version__)s.zip' % locals(
+      ),
+      author='David Young',
       author_email='davidrobertyoung@gmail.com',
       license='MIT',
-      packages=['neddy'],
-      # install_requires=[
-      #    'pyyaml',
-      # ],
+      packages=find_packages(),
+      include_package_data=True,
+      install_requires=[
+          'pyyaml',
+          'neddy',
+          'fundamentals',
+          'astrocalc'
+      ],
       test_suite='nose.collector',
       tests_require=['nose', 'nose-cover3'],
       entry_points={

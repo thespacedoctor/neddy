@@ -8,10 +8,6 @@
 
 :Date Created:
     May 6, 2015
-
-.. todo::
-    
-    @review: when complete pull all general functions and classes into dryxPython
 """
 ################# GLOBAL IMPORTS ####################
 import sys
@@ -22,10 +18,7 @@ import glob
 import pickle
 import urllib
 from docopt import docopt
-from dryxPython import webcrawlers as dwc
-from dryxPython import astrotools as dat
-from dryxPython import logs as dl
-from dryxPython import commonutils as dcu
+from fundamentals.download import multiobject_download
 from fundamentals import tools, times
 from neddy import _basesearch
 from neddy import namesearch
@@ -97,7 +90,7 @@ class conesearch(_basesearch):
         # Initial Actions
         # CREATE A LIST IF SINGLE COORDINATES GIVEN
         if self.listOfCoordinates == False:
-            self.listOfCoordinates = [ra + " " + dec]
+            self.listOfCoordinates = ["%(ra)s %(dec)s" % locals()]
         self._convert_coordinates_to_decimal_degrees()
 
         return None
@@ -251,14 +244,16 @@ class conesearch(_basesearch):
         if count:
             print "%(count)s NED conesearch URLs have been built. Requesting from NED ..." % locals()
 
-        localUrls = dwc.multiWebDocumentDownloader(
+        localUrls = multiobject_download(
             urlList=nedUrls,
-            # directory(ies) to download the documents to - can be one url or a
-            # list of urls the same length as urlList
-            downloadDirectory="/tmp/",
+            downloadDirectory="/tmp",
             log=self.log,
+            timeStamp=True,
             timeout=3600,
             concurrentDownloads=10,
+            resetFilename=False,
+            credentials=False,  # { 'username' : "...", "password", "..." }
+            longTime=True,
             indexFilenames=True
         )
 
