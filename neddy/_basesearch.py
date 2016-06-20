@@ -21,9 +21,7 @@ import re
 import string
 import csv
 from docopt import docopt
-from dryxPython import astrotools as dat
-from dryxPython import logs as dl
-from dryxPython import commonutils as dcu
+from astrocalc.coords import unit_conversion
 from fundamentals import tools, times
 
 
@@ -47,23 +45,22 @@ class _basesearch:
         self.log.info(
             'starting the ``_convert_coordinates_to_decimal_degrees`` method')
 
-        from dryxPython import astrotools as dat
+        converter = unit_conversion(
+            log=self.log
+        )
 
         # CONVERT ALL COORDINATES TO DECIMAL DEGREES
         sources = self.listOfCoordinates[:]
         self.listOfCoordinates = []
         for source in sources:
             source = source.split(" ")
-            try:
-                raDeg = float(source[0])
-            except:
-                raDeg = dat.ra_sexegesimal_to_decimal.ra_sexegesimal_to_decimal(
-                    ra=source[0])
-            try:
-                decDeg = float(source[1])
-            except:
-                decDeg = dat.declination_sexegesimal_to_decimal.declination_sexegesimal_to_decimal(
-                    dec=source[1])
+
+            raDeg = converter.ra_sexegesimal_to_decimal(
+                ra=source[0]
+            )
+            decDeg = converter.dec_sexegesimal_to_decimal(
+                dec=source[1]
+            )
             self.listOfCoordinates.append([raDeg, decDeg])
 
         self.log.info(
