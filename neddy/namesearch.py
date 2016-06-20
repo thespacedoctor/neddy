@@ -8,10 +8,6 @@
 
 :Date Created:
     May 6, 2015
-
-.. todo::
-    
-    @review: when complete pull all general functions and classes into dryxPython
 """
 ################# GLOBAL IMPORTS ####################
 import sys
@@ -21,9 +17,7 @@ import glob
 import pickle
 import urllib
 from docopt import docopt
-from dryxPython import webcrawlers as dwc
-from dryxPython import logs as dl
-from dryxPython import commonutils as dcu
+from fundamentals.download import multiobject_download
 from fundamentals import tools, times
 from neddy import _basesearch
 
@@ -159,11 +153,9 @@ class namesearch(_basesearch):
             queryList.append(queryUrl)
 
         # PULL THE RESULT PAGES FROM NED
-        self.nedResults = dwc.multiWebDocumentDownloader(
+        self.nedResults = multiobject_download(
             urlList=queryList,
-            # directory(ies) to download the documents to - can be one url or a
-            # list of urls the same length as urlList
-            downloadDirectory="/tmp/",
+            downloadDirectory="/tmp",
             log=self.log,
             timeStamp=1,
             timeout=3600,
