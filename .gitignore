@@ -22,6 +22,7 @@ _ignore_*
 /*.egg-info
 /*.egg
 /build
+/docs/build
 
 package_description
 
