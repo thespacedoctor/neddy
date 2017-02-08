@@ -50,18 +50,36 @@ class _basesearch:
         )
 
         # CONVERT ALL COORDINATES TO DECIMAL DEGREES
-        sources = self.listOfCoordinates[:]
-        self.listOfCoordinates = []
-        for source in sources:
-            source = source.split(" ")
+        if len(self.listOfCoordinates) and isinstance(self.listOfCoordinates[0], str):
+            sources = []
+            sources[:] = [s.split(" ") for s in self.listOfCoordinates]
 
-            raDeg = converter.ra_sexegesimal_to_decimal(
-                ra=source[0]
-            )
-            decDeg = converter.dec_sexegesimal_to_decimal(
-                dec=source[1]
-            )
-            self.listOfCoordinates.append([raDeg, decDeg])
+        else:
+            sources = self.listOfCoordinates
+        self.listOfCoordinates = []
+
+        # TEST IF CONVERSION IS REQUIRED
+        try:
+            ra = float(sources[0][0])
+            convert = False
+        except:
+            convert = True
+
+        if convert == True:
+            raDegs = []
+            raDegs[:] = [converter.ra_sexegesimal_to_decimal(
+                ra=s[0]) for s in sources]
+            decDegs = []
+            decDegs[:] = [converter.dec_sexegesimal_to_decimal(
+                dec=s[1]) for s in sources]
+            self.listOfCoordinates = []
+            self.listOfCoordinates[:] = [[raDeg, decDeg]
+                                         for raDeg, decDeg in zip(raDegs, decDegs)]
+
+        else:
+            self.listOfCoordinates = []
+            self.listOfCoordinates[:] = [[float(s[0]), float(s[1])]
+                                         for s in sources]
 
         self.log.info(
             'completed the ``_convert_coordinates_to_decimal_degrees`` method')
@@ -359,7 +377,7 @@ class _basesearch:
                                     'cound not strip ned key (%(k)s, %(v)s)' % locals())
                                 self.log.error(
                                     "could not strip ned key - failed with this error: %s " % (str(e),))
-                                continue
+                                break
                             if (k == "ra" or k == "dec"):
                                 v = v.replace("h", ":").replace(
                                     "m", ":").replace("d", ":").replace("s", "")

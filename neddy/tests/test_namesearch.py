@@ -13,7 +13,7 @@ log, dbConn, pathToInputDir, pathToOutputDir = utKit.setupModule()
 utKit.tearDownModule()
 
 
-class test_namesearch():
+class test_namesearch(unittest.TestCase):
 
     def test_namesearch_function(self):
         kwargs = {}

@@ -1,7 +1,7 @@
 Installation
 ============
 
-The easiest way to install neddy us to use ``pip``:
+The easiest way to install neddy is to use ``pip``:
 
 .. code:: bash
 
