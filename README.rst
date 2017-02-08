@@ -31,7 +31,7 @@ Documentation for neddy is hosted by `Read the Docs <http://neddy.readthedocs.or
 Installation
 ============
 
-The easiest way to install neddy us to use ``pip``:
+The easiest way to install neddy is to use ``pip``:
 
 .. code:: bash
 
