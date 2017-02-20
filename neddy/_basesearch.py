@@ -368,6 +368,8 @@ class _basesearch:
                     for row in csvReader:
                         thisDict = {}
                         row = dict(row)
+                        if "ned_name" not in row.keys():
+                            continue
                         for k, v in row.iteritems():
                             try:
                                 # self.log.debug("attempting to strip ned key")
