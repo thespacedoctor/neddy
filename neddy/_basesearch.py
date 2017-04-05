@@ -354,6 +354,7 @@ class _basesearch:
                         thisHeader += str(head).ljust(self.resultSpacing,
                                                       ' ') + " | "
                     theseLines = string.split(matchObject.group(), '\n')[1:]
+
                     if self.theseBatchParams:
                         newLines = []
                         for t, b in zip(theseLines, self.theseBatchParams[thisIndex]):
@@ -368,7 +369,11 @@ class _basesearch:
                     for row in csvReader:
                         thisDict = {}
                         row = dict(row)
-                        if "ned_name" not in row.keys():
+                        if not row.keys():
+                            continue
+                        if None in row.keys():
+                            continue
+                        if "ned_name" not in ("").join(row.keys()).lower():
                             continue
                         for k, v in row.iteritems():
                             try:
@@ -387,6 +392,8 @@ class _basesearch:
                                 v = v.strip()
                             thisDict[k] = v
                         results.append(thisDict)
+
+                os.remove(thisFile)
 
         self.log.info('completed the ``_parse_the_ned_list_results`` method')
         return results, headers
