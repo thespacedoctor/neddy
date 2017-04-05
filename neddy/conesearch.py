@@ -287,6 +287,7 @@ class conesearch(_basesearch):
                     searchParams.append(
                         {"searchIndex": i + 1, "searchRa": r["searchRa"], "searchDec": r["searchDec"]})
                     names.append(r["matchName"])
+            os.remove(nedResults)
 
         self.log.info('completed the ``get_crossmatch_names`` method')
         return names, searchParams

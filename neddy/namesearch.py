@@ -199,6 +199,7 @@ class namesearch(_basesearch):
 
         content = ""
         maxNameLen = 0
+
         for r in self.results:
             if maxNameLen < len(r["ned_name"]):
                 maxNameLen = len(r["ned_name"])
