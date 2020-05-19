@@ -9,7 +9,6 @@
 :Date Created:
     May 6, 2015
 """
-from __future__ import print_function
 ################# GLOBAL IMPORTS ####################
 import sys
 import os
@@ -51,7 +50,7 @@ class _basesearch:
         )
 
         # CONVERT ALL COORDINATES TO DECIMAL DEGREES
-        if len(self.listOfCoordinates) and isinstance(self.listOfCoordinates[0], ("".__class__, u"".__class__)):
+        if len(self.listOfCoordinates) and isinstance(self.listOfCoordinates[0], str):
             sources = []
             sources[:] = [s.split(" ") for s in self.listOfCoordinates]
 
@@ -115,7 +114,7 @@ class _basesearch:
                     pathToReadFile, encoding='utf-8', mode='rb')
                 thisData = readFile.read()
                 readFile.close()
-            except IOError as e:
+            except IOError, e:
                 message = 'could not open the file %s' % (pathToReadFile,)
                 self.log.critical(message)
                 raise IOError(message)
@@ -123,7 +122,7 @@ class _basesearch:
 
             # CHECK FOR ERRORS
             if "Results from query to  NASA/IPAC Extragalactic Database" not in thisData:
-                print("something went wrong with the NED query")
+                print "something went wrong with the NED query"
                 self.log.error(
                     "something went wrong with the NED query" % locals())
                 sys.exit(0)
@@ -177,7 +176,7 @@ class _basesearch:
                     pathToReadFile, encoding='utf-8', mode='rb')
                 thisData = readFile.read()
                 readFile.close()
-            except IOError as e:
+            except IOError, e:
                 message = 'could not open the file %s' % (pathToReadFile,)
                 self.log.critical(message)
                 raise IOError(message)
@@ -192,7 +191,7 @@ class _basesearch:
                     thisHeader += str(head).ljust(self.resultSpacing,
                                                   ' ') + " | "
                 if not self.quiet:
-                    print(thisHeader)
+                    print thisHeader
                 theseLines = string.split(matchObject.group(), '\n')
                 csvReader = csv.DictReader(
                     theseLines, dialect='excel', delimiter='|', quotechar='"')
@@ -211,25 +210,25 @@ class _basesearch:
                         thisRow += str(thisDict[head]
                                        ).ljust(self.resultSpacing, ' ') + " | "
                     if not self.quiet:
-                        print(thisRow)
+                        print thisRow
 
             else:
                 for head in headers:
                     thisRow += str("").ljust(self.resultSpacing, ' ') + " | "
                 if not self.quiet:
-                    print(thisRow)
+                    print thisRow
         else:
             # Print the header for stdout
             thisHeader = "| "
             for head in headers:
                 thisHeader += str(head).ljust(self.resultSpacing, ' ') + " | "
             if not self.quiet:
-                print(thisHeader)
+                print thisHeader
             thisRow = "| "
             for head in headers:
                 thisRow += str("").ljust(self.resultSpacing, ' ') + " | "
             if not self.quiet:
-                print(thisRow)
+                print thisRow
 
         self.log.debug('completed the ``_parse_the_ned_results`` method')
         return results
@@ -267,7 +266,7 @@ class _basesearch:
                     pathToReadFile, encoding='utf-8', mode='r')
                 thisData = readFile.read()
                 readFile.close()
-            except IOError as e:
+            except IOError, e:
                 message = 'could not open the file %s' % (pathToReadFile,)
                 self.log.critical(message)
                 raise IOError(message)
@@ -339,7 +338,7 @@ class _basesearch:
                         pathToReadFile, encoding='utf-8', mode='rb')
                     thisData = readFile.read()
                     readFile.close()
-                except IOError as e:
+                except IOError, e:
                     message = 'could not open the file %s' % (pathToReadFile,)
                     self.log.critical(message)
                     raise IOError(message)
@@ -370,17 +369,17 @@ class _basesearch:
                     for row in csvReader:
                         thisDict = {}
                         row = dict(row)
-                        if not list(row.keys()):
+                        if not row.keys():
                             continue
-                        if None in list(row.keys()):
+                        if None in row.keys():
                             continue
                         if "ned_name" not in ("").join(row.keys()).lower():
                             continue
-                        for k, v in row.items():
+                        for k, v in row.iteritems():
                             try:
                                 # self.log.debug("attempting to strip ned key")
                                 k = k.strip()
-                            except Exception as e:
+                            except Exception, e:
                                 self.log.error(
                                     'cound not strip ned key (%(k)s, %(v)s)' % locals())
                                 self.log.error(
@@ -389,7 +388,7 @@ class _basesearch:
                             if (k == "ra" or k == "dec"):
                                 v = v.replace("h", ":").replace(
                                     "m", ":").replace("d", ":").replace("s", "")
-                            if isinstance(v, ("".__class__, u"".__class__)):
+                            if isinstance(v, str):
                                 v = v.strip()
                             thisDict[k] = v
                         results.append(thisDict)

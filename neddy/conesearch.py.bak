@@ -9,7 +9,6 @@
 :Date Created:
     May 6, 2015
 """
-from __future__ import print_function
 ################# GLOBAL IMPORTS ####################
 import sys
 import os
@@ -243,7 +242,7 @@ class conesearch(_basesearch):
 
         count = len(nedUrls)
         if count:
-            print("%(count)s NED conesearch URLs have been built. Requesting from NED ..." % locals())
+            print "%(count)s NED conesearch URLs have been built. Requesting from NED ..." % locals()
 
         localUrls = multiobject_download(
             urlList=nedUrls,
@@ -260,7 +259,7 @@ class conesearch(_basesearch):
 
         count = len(localUrls)
         if count:
-            print("%(count)s conesearch results downloaded from NED" % locals())
+            print "%(count)s conesearch results downloaded from NED" % locals()
 
         for ii, nedResults in enumerate(localUrls):
             if nedResults == None:
@@ -274,9 +273,9 @@ class conesearch(_basesearch):
                 dec=listOfCoordinates[i][1],
                 nedResults=nedResults
             )
-            print("  %(resultLen)s returned from single NED conesearch" % locals())
+            print "  %(resultLen)s returned from single NED conesearch" % locals()
             if resultLen > 45000:
-                print(" To many results returned from single NED query ... aborting!")
+                print " To many results returned from single NED query ... aborting!"
                 subnames, subsearchParams = self._oversized_subqueries(
                     coordinate=listOfCoordinates[i],
                     radiusArcsec=radiusArcsec
@@ -317,7 +316,7 @@ class conesearch(_basesearch):
         import math
 
         smallerRadiusArcsec = radiusArcsec / 2.
-        print("Calculating 7 sub-disks for coordinates %(coordinate)s, with smaller search radius of %(smallerRadiusArcsec)s arcsec" % locals())
+        print "Calculating 7 sub-disks for coordinates %(coordinate)s, with smaller search radius of %(smallerRadiusArcsec)s arcsec" % locals()
 
         ra = coordinate[0]
         dec = coordinate[1]

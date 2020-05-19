@@ -9,7 +9,6 @@
 :Date Created:
     May 6, 2015
 """
-from __future__ import print_function
 ################# GLOBAL IMPORTS ####################
 import sys
 import os
@@ -144,7 +143,7 @@ class namesearch(_basesearch):
                 if thisIndex < thisLength - 1:
                     queryUrl = queryUrl + "%0D"
             # ADD PARAMETERS
-            for k, v in urlParameters.items():
+            for k, v in urlParameters.iteritems():
                 if isinstance(v, list):
                     for item in v:
                         queryUrl = queryUrl + "&" + \
@@ -233,7 +232,7 @@ class namesearch(_basesearch):
                 content += "\n" + thisRow
 
         if self.quiet == False:
-            print(content)
+            print content
         if self.outputFilePath:
             import codecs
             writeFile = codecs.open(
