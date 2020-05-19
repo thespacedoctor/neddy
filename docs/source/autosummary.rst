@@ -7,7 +7,6 @@ Modules
    :nosignatures:
 
    neddy.commonutils 
-   neddy.docstring_test
    neddy.utKit 
 
 
@@ -18,14 +17,7 @@ Classes
    :toctree: _autosummary
    :nosignatures:
 
+   neddy.conesearch
+   neddy.namesearch
    neddy.utKit.utKit 
 
-
-Functions
----------
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-   neddy.docstring_test.docsting_test 
