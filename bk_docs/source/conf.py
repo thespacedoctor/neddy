@@ -11,6 +11,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+from builtins import str
 import sys
 import os
 
@@ -105,7 +106,6 @@ pygments_style = 'monokai'
 # A list of ignored prefixes for module index sorting.
 modindex_common_prefix = ["neddy."]
 
-
 # -- Options for HTML output ---------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -187,7 +187,6 @@ html_add_permalinks = u"  ∞"
 # Output file base name for HTML help builder.
 html_help_basename = 'neddydoc'
 
-
 # -- Options for LaTeX output --------------------------------------------
 
 latex_elements = {
@@ -228,7 +227,6 @@ latex_logo = "_images/thespacedoctor_icon_dark.png"
 # If false, no module index is generated.
 # latex_domain_indices = True
 
-
 # -- Options for manual page output --------------------------------------
 
 # One entry per manual page. List of tuples
@@ -240,7 +238,6 @@ man_pages = [
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
-
 
 # -- Options for Texinfo output ------------------------------------------
 
@@ -262,7 +259,6 @@ texinfo_documents = [
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 # texinfo_show_urls = 'footnote'
 
-
 # Added to the start of every source file
 # rst_prolog = """
 # """
@@ -271,7 +267,6 @@ texinfo_documents = [
 primary_domain = "py"
 
 trim_footnote_reference_space = True
-
 
 def updateUsageRST():
 
@@ -302,9 +297,7 @@ def updateUsageRST():
 
     return None
 
-
 updateUsageRST()
-
 
 def generateAutosummaryIndex():
 
@@ -465,7 +458,6 @@ Functions
 
     return thisText
 
-
 def findAllSubpackges(
     pathToPackage
 ):
@@ -480,7 +472,6 @@ def findAllSubpackges(
             subPackages.append(modname)
 
     return subPackages
-
 
 autosummaryText = generateAutosummaryIndex()
 

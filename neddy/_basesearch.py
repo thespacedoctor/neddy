@@ -5,12 +5,14 @@
 
 :Author:
     David Young
-
-:Date Created:
-    May 6, 2015
 """
 from __future__ import print_function
-################# GLOBAL IMPORTS ####################
+from __future__ import division
+from builtins import zip
+from builtins import str
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import sys
 import os
 os.environ['TERM'] = 'vt100'
@@ -19,15 +21,12 @@ import glob
 import pickle
 import codecs
 import re
-import string
 import csv
 from docopt import docopt
 from astrocalc.coords import unit_conversion
 from fundamentals import tools, times
 
-
-class _basesearch:
-
+class _basesearch(object):
     """
     The base-class for searching NED
     """
@@ -94,12 +93,16 @@ class _basesearch:
         """
         *parse the ned results*
 
-        **Key Arguments:**
-            - ``ra`` -- the search ra
-            - ``dec`` -- the search dec
+        **Key Arguments**
 
-        **Return:**
-            - ``results`` -- list of result dictionaries
+        - ``ra`` -- the search ra
+        - ``dec`` -- the search dec
+        
+
+        **Return**
+
+        - ``results`` -- list of result dictionaries
+        
         """
         self.log.debug('starting the ``_parse_the_ned_results`` method')
 
@@ -132,7 +135,7 @@ class _basesearch:
             matchObject = re.search(
                 r"No\.\|Object Name.*?\n(.*)", thisData, re.S)
             if matchObject:
-                theseLines = string.split(matchObject.group(), '\n')
+                theseLines = str.split(matchObject.group(), '\n')
                 resultLen = len(theseLines)
                 csvReader = csv.DictReader(
                     theseLines, dialect='excel', delimiter='|', quotechar='"')
@@ -152,11 +155,15 @@ class _basesearch:
         """
         *parse the ned results*
 
-        **Key Arguments:**
-            # -
+        **Key Arguments**
 
-        **Return:**
-            - None
+        # -
+        
+
+        **Return**
+
+        - None
+        
 
         .. todo::
 
@@ -193,7 +200,7 @@ class _basesearch:
                                                   ' ') + " | "
                 if not self.quiet:
                     print(thisHeader)
-                theseLines = string.split(matchObject.group(), '\n')
+                theseLines = str.split(matchObject.group(), '\n')
                 csvReader = csv.DictReader(
                     theseLines, dialect='excel', delimiter='|', quotechar='"')
                 for row in csvReader:
@@ -240,11 +247,15 @@ class _basesearch:
         """
         *contert html to csv*
 
-        **Key Arguments:**
-            # -
+        **Key Arguments**
 
-        **Return:**
-            - None
+        # -
+        
+
+        **Return**
+
+        - None
+        
 
         .. todo::
 
@@ -298,11 +309,15 @@ class _basesearch:
         """
         *parse the ned results*
 
-        **Key Arguments:**
-            # -
+        **Key Arguments**
 
-        **Return:**
-            - None
+        # -
+        
+
+        **Return**
+
+        - None
+        
 
         .. todo::
 
@@ -354,7 +369,7 @@ class _basesearch:
                     for head in allHeaders:
                         thisHeader += str(head).ljust(self.resultSpacing,
                                                       ' ') + " | "
-                    theseLines = string.split(matchObject.group(), '\n')[1:]
+                    theseLines = str.split(matchObject.group(), '\n')[1:]
 
                     if self.theseBatchParams:
                         newLines = []
@@ -374,9 +389,9 @@ class _basesearch:
                             continue
                         if None in list(row.keys()):
                             continue
-                        if "ned_name" not in ("").join(row.keys()).lower():
+                        if "ned_name" not in ("").join(list(row.keys())).lower():
                             continue
-                        for k, v in row.items():
+                        for k, v in list(row.items()):
                             try:
                                 # self.log.debug("attempting to strip ned key")
                                 k = k.strip()
@@ -406,20 +421,24 @@ class _basesearch:
         """
         *split incoming queries into batches*
 
-        **Key Arguments:**
-            - ``sources`` -- sources to split into batches
-            - ``searchParams`` -- search params associated with batches
+        **Key Arguments**
 
-        **Return:**
-            - ``theseBatches`` -- list of batches
-            - ``theseBatchParams`` -- params associated with batches
+        - ``sources`` -- sources to split into batches
+        - ``searchParams`` -- search params associated with batches
+        
+
+        **Return**
+
+        - ``theseBatches`` -- list of batches
+        - ``theseBatchParams`` -- params associated with batches
+        
         """
         self.log.debug(
             'completed the ````_split_incoming_queries_into_batches`` method')
 
         batchSize = 180
         total = len(sources)
-        batches = int(total / batchSize) + 1
+        batches = int(old_div(total, batchSize)) + 1
 
         start = 0
         end = 0

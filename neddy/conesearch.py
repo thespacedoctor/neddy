@@ -5,19 +5,19 @@
 
 :Author:
     David Young
-
-:Date Created:
-    May 6, 2015
 """
 from __future__ import print_function
-################# GLOBAL IMPORTS ####################
+from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from past.utils import old_div
 import sys
 import os
 os.environ['TERM'] = 'vt100'
 import readline
 import glob
 import pickle
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from docopt import docopt
 from fundamentals.download import multiobject_download
 from fundamentals import tools, times
@@ -25,26 +25,27 @@ from neddy import _basesearch
 from neddy import namesearch
 # from ..__init__ import *
 
-
 ###################################################################
 # CLASSES                                                         #
 ###################################################################
 class conesearch(_basesearch):
-
     """
     *The worker class for the conesearch module*
 
-    **Key Arguments:**
-        - ``log`` -- logger
-        - ``ra`` -- ra
-        - ``dec`` -- dec
-        - ``radiusArcsec`` -- radiusArcsec
-        - ``nearestOnly`` -- return only the nearest object from NED
-        - ``unclassified`` -- include the unclassified sources in the return results
-        - ``quiet`` -- don't print to stdout
-        - ``listOfCoordinates`` -- list of coordinates ra dec radiusArcsec
-        - ``outputFilePath`` -- path to output file
-        - ``verbose`` -- return more metadata for matches
+    **Key Arguments**
+
+    - ``log`` -- logger
+    - ``ra`` -- ra
+    - ``dec`` -- dec
+    - ``radiusArcsec`` -- radiusArcsec
+    - ``nearestOnly`` -- return only the nearest object from NED
+    - ``unclassified`` -- include the unclassified sources in the return results
+    - ``quiet`` -- don't print to stdout
+    - ``listOfCoordinates`` -- list of coordinates ra dec radiusArcsec
+    - ``outputFilePath`` -- path to output file
+    - ``verbose`` -- return more metadata for matches
+    
+
         - ``redshift`` -- redshift constraint
 
     .. todo::
@@ -85,7 +86,7 @@ class conesearch(_basesearch):
         # xt-self-arg-tmpx
 
         # VARIABLE DATA ATRRIBUTES
-        self.arcmin = float(self.arcsec) / 60.
+        self.arcmin = old_div(float(self.arcsec), 60.)
         self.resultSpacing = 30
 
         # Initial Actions
@@ -101,8 +102,10 @@ class conesearch(_basesearch):
         """
         *get the conesearch object*
 
-        **Return:**
-            - ``conesearch``
+        **Return**
+
+        - ``conesearch``
+        
 
         .. todo::
 
@@ -140,11 +143,15 @@ class conesearch(_basesearch):
         """
         *single ned conesearch*
 
-        **Key Arguments:**
-            # -
+        **Key Arguments**
 
-        **Return:**
-            - None
+        # -
+        
+
+        **Return**
+
+        - None
+        
 
         .. todo::
 
@@ -153,7 +160,7 @@ class conesearch(_basesearch):
         """
         self.log.debug('starting the ``_get_ned_query_url`` method')
 
-        radArcMin = float(arcsec) / (60.)
+        radArcMin = old_div(float(arcsec), (60.))
 
         if self.redshift == True:
             z_constraint = "Available"
@@ -188,17 +195,17 @@ class conesearch(_basesearch):
 
         }
 
-        url = url + "?" + urllib.urlencode(params)
+        url = url + "?" + urllib.parse.urlencode(params)
         if not self.unclassified:
-            url = url + "&" + urllib.urlencode({"ot_include": "ANY"})
+            url = url + "&" + urllib.parse.urlencode({"ot_include": "ANY"})
             in_objtypes1 = ["Galaxies", "GPairs", "GTriples", "GGroups",
                             "GClusters", "QSO", "QSOGroups", "GravLens", "AbsLineSys", "EmissnLine"]
             for o in in_objtypes1:
-                url = url + "&" + urllib.urlencode({"in_objtypes1": o})
+                url = url + "&" + urllib.parse.urlencode({"in_objtypes1": o})
             in_objtypes3 = ["Supernovae", "HIIregion", "PN", "SNR", "StarAssoc", "StarClust", "MolCloud", "Nova", "VarStar", "WolfRayet",
                             "CarbonStar", "PofG", "Other", "Star", "BlueStar", "RedStar", "Pulsar", "ReflNeb", "DblStar", "EmissnObj", "EmissnNeb", "WhiteDwarf"]
             for o in in_objtypes3:
-                url = url + "&" + urllib.urlencode({"in_objtypes3": o})
+                url = url + "&" + urllib.parse.urlencode({"in_objtypes3": o})
 
         self.log.debug('completed the ``_get_ned_query_url`` method')
         return url
@@ -211,12 +218,16 @@ class conesearch(_basesearch):
         """
         *get corssmatch names*
 
-        **Key Arguments:**
-            - ``listOfCoordinates`` -- list of the coordinates to conesearch
-            - ``radiusArcsec`` -- the search radius
+        **Key Arguments**
 
-        **Return:**
-            - None
+        - ``listOfCoordinates`` -- list of the coordinates to conesearch
+        - ``radiusArcsec`` -- the search radius
+        
+
+        **Return**
+
+        - None
+        
 
         .. todo::
 
@@ -301,11 +312,15 @@ class conesearch(_basesearch):
         """
         *subdivide oversized query*
 
-        **Key Arguments:**
-            # -
+        **Key Arguments**
 
-        **Return:**
-            - None
+        # -
+        
+
+        **Return**
+
+        - None
+        
 
         .. todo::
 
@@ -316,7 +331,7 @@ class conesearch(_basesearch):
 
         import math
 
-        smallerRadiusArcsec = radiusArcsec / 2.
+        smallerRadiusArcsec = old_div(radiusArcsec, 2.)
         print("Calculating 7 sub-disks for coordinates %(coordinate)s, with smaller search radius of %(smallerRadiusArcsec)s arcsec" % locals())
 
         ra = coordinate[0]
@@ -324,12 +339,12 @@ class conesearch(_basesearch):
 
         shifts = [
             (0, 0),
-            (0, math.sqrt(3.) / 2.),
-            (3. / 4., math.sqrt(3.) / 4.),
-            (3. / 4., -math.sqrt(3.) / 4.),
-            (0, -math.sqrt(3.) / 2.),
-            (-3. / 4., -math.sqrt(3.) / 4.),
-            (-3. / 4., math.sqrt(3.) / 4.)
+            (0, old_div(math.sqrt(3.), 2.)),
+            (old_div(3., 4.), old_div(math.sqrt(3.), 4.)),
+            (old_div(3., 4.), old_div(-math.sqrt(3.), 4.)),
+            (0, old_div(-math.sqrt(3.), 2.)),
+            (old_div(-3., 4.), old_div(-math.sqrt(3.), 4.)),
+            (old_div(-3., 4.), old_div(math.sqrt(3.), 4.))
         ]
 
         subDiskCoordinates = []
@@ -353,7 +368,6 @@ class conesearch(_basesearch):
     # 5. @flagged: what actions of the base class(es) need ammending? ammend them here
     # Override Method Attributes
     # method-override-tmpx
-
 
 if __name__ == '__main__':
     main()

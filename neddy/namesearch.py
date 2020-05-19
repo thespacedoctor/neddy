@@ -5,18 +5,17 @@
 
 :Author:
     David Young
-
-:Date Created:
-    May 6, 2015
 """
 from __future__ import print_function
-################# GLOBAL IMPORTS ####################
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 import sys
 import os
 import readline
 import glob
 import pickle
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from docopt import docopt
 from fundamentals.download import multiobject_download
 from fundamentals import tools, times
@@ -26,19 +25,19 @@ from neddy import _basesearch
 # CLASSES                                                         #
 ###################################################################
 
-
 class namesearch(_basesearch):
-
     """
     *The worker class for the namesearch module*
 
-    **Key Arguments:**
-        - ``log`` -- logger
-        - ``name`` -- name
-        - ``quiet`` -- don't print to stdout
-        - ``verbose`` -- return more metadata for matches
-        - ``searchParams`` -- list of dictionaries to prepend to results
-        - ``outputFilePath`` -- path to file to output results to
+    **Key Arguments**
+
+    - ``log`` -- logger
+    - ``name`` -- name
+    - ``quiet`` -- don't print to stdout
+    - ``verbose`` -- return more metadata for matches
+    - ``searchParams`` -- list of dictionaries to prepend to results
+    - ``outputFilePath`` -- path to file to output results to
+    
     """
     # Initialisation
 
@@ -78,8 +77,10 @@ class namesearch(_basesearch):
         """
         *get the namesearch object*
 
-        **Return:**
-            - ``results``
+        **Return**
+
+        - ``results``
+        
         """
         self.log.debug('starting the ``get`` method')
 
@@ -102,11 +103,15 @@ class namesearch(_basesearch):
         """
         *build api url for NED to perform batch name queries*
 
-        **Key Arguments:**
-            # -
+        **Key Arguments**
 
-        **Return:**
-            - None
+        # -
+        
+
+        **Return**
+
+        - None
+        
 
         .. todo::
 
@@ -140,17 +145,17 @@ class namesearch(_basesearch):
             queryUrl = queryBase
             # ADD NAMES
             for thisIndex, thisName in enumerate(batch):
-                queryUrl = queryUrl + urllib.quote(thisName)
+                queryUrl = queryUrl + urllib.parse.quote(thisName)
                 if thisIndex < thisLength - 1:
                     queryUrl = queryUrl + "%0D"
             # ADD PARAMETERS
-            for k, v in urlParameters.items():
+            for k, v in list(urlParameters.items()):
                 if isinstance(v, list):
                     for item in v:
                         queryUrl = queryUrl + "&" + \
-                            k + "=" + urllib.quote(item)
+                            k + "=" + urllib.parse.quote(item)
                 else:
-                    queryUrl = queryUrl + "&" + k + "=" + urllib.quote(v)
+                    queryUrl = queryUrl + "&" + k + "=" + urllib.parse.quote(v)
             queryList.append(queryUrl)
 
         # PULL THE RESULT PAGES FROM NED
@@ -185,11 +190,15 @@ class namesearch(_basesearch):
         """
         *output results*
 
-        **Key Arguments:**
-            # -
+        **Key Arguments**
 
-        **Return:**
-            - None
+        # -
+        
+
+        **Return**
+
+        - None
+        
 
         .. todo::
 
