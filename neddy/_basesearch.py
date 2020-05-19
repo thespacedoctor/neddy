@@ -9,7 +9,14 @@
 :Date Created:
     May 6, 2015
 """
+from __future__ import print_function
+from __future__ import division
 ################# GLOBAL IMPORTS ####################
+from builtins import zip
+from builtins import str
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import sys
 import os
 os.environ['TERM'] = 'vt100'
@@ -25,7 +32,7 @@ from astrocalc.coords import unit_conversion
 from fundamentals import tools, times
 
 
-class _basesearch:
+class _basesearch(object):
 
     """
     The base-class for searching NED
@@ -42,15 +49,15 @@ class _basesearch:
         """
         *convert coordinates to decimal degrees*
         """
-        self.log.info(
-            'starting the ``_convert_coordinates_to_decimal_degrees`` method')
+        self.log.debug(
+            'completed the ````_convert_coordinates_to_decimal_degrees`` method')
 
         converter = unit_conversion(
             log=self.log
         )
 
         # CONVERT ALL COORDINATES TO DECIMAL DEGREES
-        if len(self.listOfCoordinates) and isinstance(self.listOfCoordinates[0], str):
+        if len(self.listOfCoordinates) and isinstance(self.listOfCoordinates[0], ("".__class__, u"".__class__)):
             sources = []
             sources[:] = [s.split(" ") for s in self.listOfCoordinates]
 
@@ -81,7 +88,7 @@ class _basesearch:
             self.listOfCoordinates[:] = [[float(s[0]), float(s[1])]
                                          for s in sources]
 
-        self.log.info(
+        self.log.debug(
             'completed the ``_convert_coordinates_to_decimal_degrees`` method')
         return None
 
@@ -100,7 +107,7 @@ class _basesearch:
         **Return:**
             - ``results`` -- list of result dictionaries
         """
-        self.log.info('starting the ``_parse_the_ned_results`` method')
+        self.log.debug('starting the ``_parse_the_ned_results`` method')
 
         results = []
         resultLen = 0
@@ -114,7 +121,7 @@ class _basesearch:
                     pathToReadFile, encoding='utf-8', mode='rb')
                 thisData = readFile.read()
                 readFile.close()
-            except IOError, e:
+            except IOError as e:
                 message = 'could not open the file %s' % (pathToReadFile,)
                 self.log.critical(message)
                 raise IOError(message)
@@ -122,7 +129,7 @@ class _basesearch:
 
             # CHECK FOR ERRORS
             if "Results from query to  NASA/IPAC Extragalactic Database" not in thisData:
-                print "something went wrong with the NED query"
+                print("something went wrong with the NED query")
                 self.log.error(
                     "something went wrong with the NED query" % locals())
                 sys.exit(0)
@@ -131,7 +138,10 @@ class _basesearch:
             matchObject = re.search(
                 r"No\.\|Object Name.*?\n(.*)", thisData, re.S)
             if matchObject:
-                theseLines = string.split(matchObject.group(), '\n')
+                try:
+                    theseLines = str.split(matchObject.group(), '\n')
+                except:
+                    theseLines = string.split(matchObject.group(), '\n')
                 resultLen = len(theseLines)
                 csvReader = csv.DictReader(
                     theseLines, dialect='excel', delimiter='|', quotechar='"')
@@ -142,7 +152,7 @@ class _basesearch:
                     if self.nearestOnly:
                         break
 
-        self.log.info('completed the ``_parse_the_ned_results`` method')
+        self.log.debug('completed the ``_parse_the_ned_results`` method')
         return results, resultLen
 
     # use the tab-trigger below for new method
@@ -162,7 +172,7 @@ class _basesearch:
             - @review: when complete, clean _parse_the_ned_results method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``_parse_the_ned_results`` method')
+        self.log.debug('starting the ``_parse_the_ned_results`` method')
 
         results = []
         headers = ["objectName", "objectType", "raDeg", "decDeg",
@@ -176,7 +186,7 @@ class _basesearch:
                     pathToReadFile, encoding='utf-8', mode='rb')
                 thisData = readFile.read()
                 readFile.close()
-            except IOError, e:
+            except IOError as e:
                 message = 'could not open the file %s' % (pathToReadFile,)
                 self.log.critical(message)
                 raise IOError(message)
@@ -191,8 +201,11 @@ class _basesearch:
                     thisHeader += str(head).ljust(self.resultSpacing,
                                                   ' ') + " | "
                 if not self.quiet:
-                    print thisHeader
-                theseLines = string.split(matchObject.group(), '\n')
+                    print(thisHeader)
+                try:
+                    theseLines = str.split(matchObject.group(), '\n')
+                except:
+                    theseLines = string.split(matchObject.group(), '\n')
                 csvReader = csv.DictReader(
                     theseLines, dialect='excel', delimiter='|', quotechar='"')
                 for row in csvReader:
@@ -210,27 +223,27 @@ class _basesearch:
                         thisRow += str(thisDict[head]
                                        ).ljust(self.resultSpacing, ' ') + " | "
                     if not self.quiet:
-                        print thisRow
+                        print(thisRow)
 
             else:
                 for head in headers:
                     thisRow += str("").ljust(self.resultSpacing, ' ') + " | "
                 if not self.quiet:
-                    print thisRow
+                    print(thisRow)
         else:
             # Print the header for stdout
             thisHeader = "| "
             for head in headers:
                 thisHeader += str(head).ljust(self.resultSpacing, ' ') + " | "
             if not self.quiet:
-                print thisHeader
+                print(thisHeader)
             thisRow = "| "
             for head in headers:
                 thisRow += str("").ljust(self.resultSpacing, ' ') + " | "
             if not self.quiet:
-                print thisRow
+                print(thisRow)
 
-        self.log.info('completed the ``_parse_the_ned_results`` method')
+        self.log.debug('completed the ``_parse_the_ned_results`` method')
         return results
 
         # use the tab-trigger below for new method
@@ -250,7 +263,7 @@ class _basesearch:
             - @review: when complete, clean _convert_html_to_csv method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``_convert_html_to_csv`` method')
+        self.log.debug('starting the ``_convert_html_to_csv`` method')
 
         import codecs
         allData = ""
@@ -266,7 +279,7 @@ class _basesearch:
                     pathToReadFile, encoding='utf-8', mode='r')
                 thisData = readFile.read()
                 readFile.close()
-            except IOError, e:
+            except IOError as e:
                 message = 'could not open the file %s' % (pathToReadFile,)
                 self.log.critical(message)
                 raise IOError(message)
@@ -288,7 +301,7 @@ class _basesearch:
             writeFile.write(thisData)
             writeFile.close()
 
-        self.log.info('completed the ``_convert_html_to_csv`` method')
+        self.log.debug('completed the ``_convert_html_to_csv`` method')
         return None
 
     # use the tab-trigger below for new method
@@ -308,7 +321,7 @@ class _basesearch:
             - @review: when complete, clean _parse_the_ned_results method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``_parse_the_ned_list_results`` method')
+        self.log.debug('starting the ``_parse_the_ned_list_results`` method')
 
         results = []
 
@@ -338,7 +351,7 @@ class _basesearch:
                         pathToReadFile, encoding='utf-8', mode='rb')
                     thisData = readFile.read()
                     readFile.close()
-                except IOError, e:
+                except IOError as e:
                     message = 'could not open the file %s' % (pathToReadFile,)
                     self.log.critical(message)
                     raise IOError(message)
@@ -353,7 +366,11 @@ class _basesearch:
                     for head in allHeaders:
                         thisHeader += str(head).ljust(self.resultSpacing,
                                                       ' ') + " | "
-                    theseLines = string.split(matchObject.group(), '\n')[1:]
+                    try:
+                        theseLines = str.split(matchObject.group(), '\n')[1:]
+                    except:
+                        theseLines = string.split(
+                            matchObject.group(), '\n')[1:]
 
                     if self.theseBatchParams:
                         newLines = []
@@ -369,17 +386,17 @@ class _basesearch:
                     for row in csvReader:
                         thisDict = {}
                         row = dict(row)
-                        if not row.keys():
+                        if not list(row.keys()):
                             continue
-                        if None in row.keys():
+                        if None in list(row.keys()):
                             continue
-                        if "ned_name" not in ("").join(row.keys()).lower():
+                        if "ned_name" not in ("").join(list(row.keys())).lower():
                             continue
-                        for k, v in row.iteritems():
+                        for k, v in list(row.items()):
                             try:
                                 # self.log.debug("attempting to strip ned key")
                                 k = k.strip()
-                            except Exception, e:
+                            except Exception as e:
                                 self.log.error(
                                     'cound not strip ned key (%(k)s, %(v)s)' % locals())
                                 self.log.error(
@@ -388,14 +405,14 @@ class _basesearch:
                             if (k == "ra" or k == "dec"):
                                 v = v.replace("h", ":").replace(
                                     "m", ":").replace("d", ":").replace("s", "")
-                            if isinstance(v, str):
+                            if isinstance(v, ("".__class__, u"".__class__)):
                                 v = v.strip()
                             thisDict[k] = v
                         results.append(thisDict)
 
                 os.remove(thisFile)
 
-        self.log.info('completed the ``_parse_the_ned_list_results`` method')
+        self.log.debug('completed the ``_parse_the_ned_list_results`` method')
         return results, headers
 
     def _split_incoming_queries_into_batches(
@@ -413,12 +430,12 @@ class _basesearch:
             - ``theseBatches`` -- list of batches
             - ``theseBatchParams`` -- params associated with batches
         """
-        self.log.info(
-            'starting the ``_split_incoming_queries_into_batches`` method')
+        self.log.debug(
+            'completed the ````_split_incoming_queries_into_batches`` method')
 
         batchSize = 180
         total = len(sources)
-        batches = int(total / batchSize) + 1
+        batches = int(old_div(total, batchSize)) + 1
 
         start = 0
         end = 0
@@ -437,7 +454,7 @@ class _basesearch:
         if len(theseBatchParams) == 0:
             theseBatchParams = False
 
-        self.log.info(
+        self.log.debug(
             'completed the ``_split_incoming_queries_into_batches`` method')
         return theseBatches, theseBatchParams
 

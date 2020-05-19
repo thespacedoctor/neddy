@@ -1,21 +1,47 @@
+from __future__ import print_function
+from builtins import str
 import os
-import nose
+import unittest
 import shutil
 import yaml
-from neddy import namesearch
 from neddy.utKit import utKit
+from fundamentals import tools
+from os.path import expanduser
+home = expanduser("~")
 
+packageDirectory = utKit("").get_project_root()
+settingsFile = packageDirectory + "/test_settings.yaml"
 
-# SETUP AND TEARDOWN FIXTURE FUNCTIONS FOR THE ENTIRE MODULE
+su = tools(
+    arguments={"settingsFile": settingsFile},
+    docString=__doc__,
+    logLevel="DEBUG",
+    options_first=False,
+    projectName=None,
+    defaultSettingsFile=False
+)
+arguments, settings, log, dbConn = su.setup()
+
+# SETUP PATHS TO COMMON DIRECTORIES FOR TEST DATA
 moduleDirectory = os.path.dirname(__file__)
-utKit = utKit(moduleDirectory)
-log, dbConn, pathToInputDir, pathToOutputDir = utKit.setupModule()
-utKit.tearDownModule()
+pathToInputDir = moduleDirectory + "/input/"
+pathToOutputDir = moduleDirectory + "/output/"
 
+try:
+    shutil.rmtree(pathToOutputDir)
+except:
+    pass
+# COPY INPUT TO OUTPUT DIR
+shutil.copytree(pathToInputDir, pathToOutputDir)
+
+# Recursively create missing directories
+if not os.path.exists(pathToOutputDir):
+    os.makedirs(pathToOutputDir)
 
 class test_namesearch(unittest.TestCase):
 
     def test_namesearch_function(self):
+        from neddy import namesearch
         kwargs = {}
         kwargs["log"] = log
         kwargs["names"] = "CXO J133700.87-295156.2"

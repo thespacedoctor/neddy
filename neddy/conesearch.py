@@ -5,18 +5,19 @@
 
 :Author:
     David Young
-
-:Date Created:
-    May 6, 2015
 """
-################# GLOBAL IMPORTS ####################
+from __future__ import print_function
+from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from past.utils import old_div
 import sys
 import os
 os.environ['TERM'] = 'vt100'
 import readline
 import glob
 import pickle
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from docopt import docopt
 from fundamentals.download import multiobject_download
 from fundamentals import tools, times
@@ -24,26 +25,27 @@ from neddy import _basesearch
 from neddy import namesearch
 # from ..__init__ import *
 
-
 ###################################################################
 # CLASSES                                                         #
 ###################################################################
 class conesearch(_basesearch):
-
     """
     *The worker class for the conesearch module*
 
-    **Key Arguments:**
-        - ``log`` -- logger
-        - ``ra`` -- ra
-        - ``dec`` -- dec
-        - ``radiusArcsec`` -- radiusArcsec
-        - ``nearestOnly`` -- return only the nearest object from NED
-        - ``unclassified`` -- include the unclassified sources in the return results
-        - ``quiet`` -- don't print to stdout
-        - ``listOfCoordinates`` -- list of coordinates ra dec radiusArcsec
-        - ``outputFilePath`` -- path to output file
-        - ``verbose`` -- return more metadata for matches
+    **Key Arguments**
+
+    - ``log`` -- logger
+    - ``ra`` -- ra
+    - ``dec`` -- dec
+    - ``radiusArcsec`` -- radiusArcsec
+    - ``nearestOnly`` -- return only the nearest object from NED
+    - ``unclassified`` -- include the unclassified sources in the return results
+    - ``quiet`` -- don't print to stdout
+    - ``listOfCoordinates`` -- list of coordinates ra dec radiusArcsec
+    - ``outputFilePath`` -- path to output file
+    - ``verbose`` -- return more metadata for matches
+    
+
         - ``redshift`` -- redshift constraint
 
     .. todo::
@@ -84,7 +86,7 @@ class conesearch(_basesearch):
         # xt-self-arg-tmpx
 
         # VARIABLE DATA ATRRIBUTES
-        self.arcmin = float(self.arcsec) / 60.
+        self.arcmin = old_div(float(self.arcsec), 60.)
         self.resultSpacing = 30
 
         # Initial Actions
@@ -100,15 +102,17 @@ class conesearch(_basesearch):
         """
         *get the conesearch object*
 
-        **Return:**
-            - ``conesearch``
+        **Return**
+
+        - ``conesearch``
+        
 
         .. todo::
 
             - @review: when complete, clean get method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``get`` method')
+        self.log.debug('starting the ``get`` method')
 
         # SEARCH NED WITH SINGLE CONESEARCHES TO RETURN LIST OF MATCHED NAMES
         names, searchParams = self.get_crossmatch_names(
@@ -117,7 +121,7 @@ class conesearch(_basesearch):
         )
 
         # NOW PERFORM A NAME SEARCH AGAINST THE MATCHED NAMES
-        search = namesearch.namesearch(
+        search = namesearch(
             log=self.log,
             names=names,
             quiet=False,
@@ -127,7 +131,7 @@ class conesearch(_basesearch):
         )
         search.get()
 
-        self.log.info('completed the ``get`` method')
+        self.log.debug('completed the ``get`` method')
         return conesearch
 
     # use the tab-trigger below for new method
@@ -139,20 +143,24 @@ class conesearch(_basesearch):
         """
         *single ned conesearch*
 
-        **Key Arguments:**
-            # -
+        **Key Arguments**
 
-        **Return:**
-            - None
+        # -
+        
+
+        **Return**
+
+        - None
+        
 
         .. todo::
 
             - @review: when complete, clean _get_ned_query_url method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``_get_ned_query_url`` method')
+        self.log.debug('starting the ``_get_ned_query_url`` method')
 
-        radArcMin = float(arcsec) / (60.)
+        radArcMin = old_div(float(arcsec), (60.))
 
         if self.redshift == True:
             z_constraint = "Available"
@@ -187,19 +195,19 @@ class conesearch(_basesearch):
 
         }
 
-        url = url + "?" + urllib.urlencode(params)
+        url = url + "?" + urllib.parse.urlencode(params)
         if not self.unclassified:
-            url = url + "&" + urllib.urlencode({"ot_include": "ANY"})
+            url = url + "&" + urllib.parse.urlencode({"ot_include": "ANY"})
             in_objtypes1 = ["Galaxies", "GPairs", "GTriples", "GGroups",
                             "GClusters", "QSO", "QSOGroups", "GravLens", "AbsLineSys", "EmissnLine"]
             for o in in_objtypes1:
-                url = url + "&" + urllib.urlencode({"in_objtypes1": o})
+                url = url + "&" + urllib.parse.urlencode({"in_objtypes1": o})
             in_objtypes3 = ["Supernovae", "HIIregion", "PN", "SNR", "StarAssoc", "StarClust", "MolCloud", "Nova", "VarStar", "WolfRayet",
                             "CarbonStar", "PofG", "Other", "Star", "BlueStar", "RedStar", "Pulsar", "ReflNeb", "DblStar", "EmissnObj", "EmissnNeb", "WhiteDwarf"]
             for o in in_objtypes3:
-                url = url + "&" + urllib.urlencode({"in_objtypes3": o})
+                url = url + "&" + urllib.parse.urlencode({"in_objtypes3": o})
 
-        self.log.info('completed the ``_get_ned_query_url`` method')
+        self.log.debug('completed the ``_get_ned_query_url`` method')
         return url
 
     # use the tab-trigger below for new method
@@ -210,19 +218,23 @@ class conesearch(_basesearch):
         """
         *get corssmatch names*
 
-        **Key Arguments:**
-            - ``listOfCoordinates`` -- list of the coordinates to conesearch
-            - ``radiusArcsec`` -- the search radius
+        **Key Arguments**
 
-        **Return:**
-            - None
+        - ``listOfCoordinates`` -- list of the coordinates to conesearch
+        - ``radiusArcsec`` -- the search radius
+        
+
+        **Return**
+
+        - None
+        
 
         .. todo::
 
             - @review: when complete, clean get_crossmatch_names method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``get_crossmatch_names`` method')
+        self.log.debug('starting the ``get_crossmatch_names`` method')
 
         if listOfCoordinates == False:
             listOfCoordinates = self.listOfCoordinates
@@ -242,7 +254,7 @@ class conesearch(_basesearch):
 
         count = len(nedUrls)
         if count:
-            print "%(count)s NED conesearch URLs have been built. Requesting from NED ..." % locals()
+            print("%(count)s NED conesearch URLs have been built. Requesting from NED ..." % locals())
 
         localUrls = multiobject_download(
             urlList=nedUrls,
@@ -259,7 +271,7 @@ class conesearch(_basesearch):
 
         count = len(localUrls)
         if count:
-            print "%(count)s conesearch results downloaded from NED" % locals()
+            print("%(count)s conesearch results downloaded from NED" % locals())
 
         for ii, nedResults in enumerate(localUrls):
             if nedResults == None:
@@ -273,9 +285,9 @@ class conesearch(_basesearch):
                 dec=listOfCoordinates[i][1],
                 nedResults=nedResults
             )
-            print "  %(resultLen)s returned from single NED conesearch" % locals()
+            print("  %(resultLen)s returned from single NED conesearch" % locals())
             if resultLen > 45000:
-                print " To many results returned from single NED query ... aborting!"
+                print(" To many results returned from single NED query ... aborting!")
                 subnames, subsearchParams = self._oversized_subqueries(
                     coordinate=listOfCoordinates[i],
                     radiusArcsec=radiusArcsec
@@ -289,7 +301,7 @@ class conesearch(_basesearch):
                     names.append(r["matchName"])
             os.remove(nedResults)
 
-        self.log.info('completed the ``get_crossmatch_names`` method')
+        self.log.debug('completed the ``get_crossmatch_names`` method')
         return names, searchParams
 
     # use the tab-trigger below for new method
@@ -300,35 +312,39 @@ class conesearch(_basesearch):
         """
         *subdivide oversized query*
 
-        **Key Arguments:**
-            # -
+        **Key Arguments**
 
-        **Return:**
-            - None
+        # -
+        
+
+        **Return**
+
+        - None
+        
 
         .. todo::
 
             - @review: when complete, clean _oversized_subqueries method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``_oversized_subqueries`` method')
+        self.log.debug('starting the ``_oversized_subqueries`` method')
 
         import math
 
-        smallerRadiusArcsec = radiusArcsec / 2.
-        print "Calculating 7 sub-disks for coordinates %(coordinate)s, with smaller search radius of %(smallerRadiusArcsec)s arcsec" % locals()
+        smallerRadiusArcsec = old_div(radiusArcsec, 2.)
+        print("Calculating 7 sub-disks for coordinates %(coordinate)s, with smaller search radius of %(smallerRadiusArcsec)s arcsec" % locals())
 
         ra = coordinate[0]
         dec = coordinate[1]
 
         shifts = [
             (0, 0),
-            (0, math.sqrt(3.) / 2.),
-            (3. / 4., math.sqrt(3.) / 4.),
-            (3. / 4., -math.sqrt(3.) / 4.),
-            (0, -math.sqrt(3.) / 2.),
-            (-3. / 4., -math.sqrt(3.) / 4.),
-            (-3. / 4., math.sqrt(3.) / 4.)
+            (0, old_div(math.sqrt(3.), 2.)),
+            (old_div(3., 4.), old_div(math.sqrt(3.), 4.)),
+            (old_div(3., 4.), old_div(-math.sqrt(3.), 4.)),
+            (0, old_div(-math.sqrt(3.), 2.)),
+            (old_div(-3., 4.), old_div(-math.sqrt(3.), 4.)),
+            (old_div(-3., 4.), old_div(math.sqrt(3.), 4.))
         ]
 
         subDiskCoordinates = []
@@ -343,7 +359,7 @@ class conesearch(_basesearch):
             radiusArcsec=smallerRadiusArcsec
         )
 
-        self.log.info('completed the ``_oversized_subqueries`` method')
+        self.log.debug('completed the ``_oversized_subqueries`` method')
         return names, searchParams
 
     # use the tab-trigger below for new method
@@ -352,7 +368,6 @@ class conesearch(_basesearch):
     # 5. @flagged: what actions of the base class(es) need ammending? ammend them here
     # Override Method Attributes
     # method-override-tmpx
-
 
 if __name__ == '__main__':
     main()
