@@ -1,0 +1,463 @@
+
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>neddy.namesearch &mdash; neddy 0.1.1 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../../_static/dryx.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="neddy 0.1.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> neddy
+          
+
+          
+            
+            <img src="../../_static/thespacedoctor_icon_white_circle.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../_includes/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_includes/index.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_includes/index.html#documentation">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_includes/index.html#tutorial">Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../autosummary.html">Subpackages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autosummary.html#modules">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autosummary.html#classes">Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autosummary.html#functions">Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">neddy</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>neddy.namesearch</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for neddy.namesearch</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/local/bin/python</span>
+<span class="c1"># encoding: utf-8</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">*A Name Searcher for NED*</span>
+
+<span class="sd">:Author:</span>
+<span class="sd">    David Young</span>
+
+<span class="sd">:Date Created:</span>
+<span class="sd">    May 6, 2015</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">################# GLOBAL IMPORTS ####################</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">readline</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">from</span> <span class="nn">docopt</span> <span class="kn">import</span> <span class="n">docopt</span>
+<span class="kn">from</span> <span class="nn">fundamentals.download</span> <span class="kn">import</span> <span class="n">multiobject_download</span>
+<span class="kn">from</span> <span class="nn">fundamentals</span> <span class="kn">import</span> <span class="n">tools</span><span class="p">,</span> <span class="n">times</span>
+<span class="kn">from</span> <span class="nn">neddy</span> <span class="kn">import</span> <span class="n">_basesearch</span>
+
+<span class="c1">###################################################################</span>
+<span class="c1"># CLASSES                                                         #</span>
+<span class="c1">###################################################################</span>
+
+
+<div class="viewcode-block" id="namesearch"><a class="viewcode-back" href="../../_autosummary/neddy.namesearch.html#neddy.namesearch.namesearch">[docs]</a><span class="k">class</span> <span class="nc">namesearch</span><span class="p">(</span><span class="n">_basesearch</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    *The worker class for the namesearch module*</span>
+
+<span class="sd">    **Key Arguments:**</span>
+<span class="sd">        - ``log`` -- logger</span>
+<span class="sd">        - ``name`` -- name</span>
+<span class="sd">        - ``quiet`` -- don&#39;t print to stdout</span>
+<span class="sd">        - ``verbose`` -- return more metadata for matches</span>
+<span class="sd">        - ``searchParams`` -- list of dictionaries to prepend to results</span>
+<span class="sd">        - ``outputFilePath`` -- path to file to output results to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Initialisation</span>
+
+<div class="viewcode-block" id="namesearch.__init__"><a class="viewcode-back" href="../../_autosummary/neddy.namesearch.html#neddy.namesearch.namesearch.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">log</span><span class="p">,</span>
+            <span class="n">names</span><span class="p">,</span>
+            <span class="n">quiet</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">searchParams</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">outputFilePath</span><span class="o">=</span><span class="bp">False</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">log</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;instantiating a new &#39;namesearch&#39; object&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quiet</span> <span class="o">=</span> <span class="n">quiet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">searchParams</span> <span class="o">=</span> <span class="n">searchParams</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputFilePath</span> <span class="o">=</span> <span class="n">outputFilePath</span>
+        <span class="c1"># xt-self-arg-tmpx</span>
+
+        <span class="c1"># VARIABLE DATA ATRRIBUTES</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resultSpacing</span> <span class="o">=</span> <span class="mi">15</span>
+
+        <span class="c1"># Initial Actions</span>
+        <span class="c1"># CREATE A LIST IF SINGLE NAME GIVEN</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;TERM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;vt100&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uplist</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uplist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span>
+
+        <span class="k">return</span> <span class="bp">None</span></div>
+
+    <span class="c1"># METHOD ATTRIBUTES</span>
+<div class="viewcode-block" id="namesearch.get"><a class="viewcode-back" href="../../_api/neddy.namesearch.html#neddy.namesearch.namesearch.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *get the namesearch object*</span>
+
+<span class="sd">        **Return:**</span>
+<span class="sd">            - ``results``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;starting the ``get`` method&#39;</span><span class="p">)</span>
+
+        <span class="c1"># SPLIT THE LIST OF NAMES INTO BATCHES</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theseBatches</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">theseBatchParams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_incoming_queries_into_batches</span><span class="p">(</span>
+            <span class="n">sources</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uplist</span><span class="p">,</span>
+            <span class="n">searchParams</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">searchParams</span>
+        <span class="p">)</span>
+
+        <span class="c1"># PERFORM NAME QUERIES AGAINST NED</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_api_url_and_download_results</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_the_ned_list_results</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_results</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;completed the ``get`` method&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span></div>
+
+    <span class="k">def</span> <span class="nf">_build_api_url_and_download_results</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *build api url for NED to perform batch name queries*</span>
+
+<span class="sd">        **Key Arguments:**</span>
+<span class="sd">            # -</span>
+
+<span class="sd">        **Return:**</span>
+<span class="sd">            - None</span>
+
+<span class="sd">        .. todo::</span>
+
+<span class="sd">            - @review: when complete, clean _build_api_url_and_download_results method</span>
+<span class="sd">            - @review: when complete add logging</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s1">&#39;starting the ``_build_api_url_and_download_results`` method&#39;</span><span class="p">)</span>
+
+        <span class="n">baseUrl</span> <span class="o">=</span> <span class="s2">&quot;https://ned.ipac.caltech.edu/cgi-bin/&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;gmd&quot;</span>
+        <span class="n">urlParameters</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;delimiter&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NO_LINKS&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nondb&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;row_count&quot;</span><span class="p">,</span> <span class="s2">&quot;user_name_msg&quot;</span><span class="p">,</span> <span class="s2">&quot;user_objname&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;crosid&quot;</span><span class="p">:</span> <span class="s2">&quot;objname&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;enotes&quot;</span><span class="p">:</span> <span class="s2">&quot;objnote&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ra,dec&quot;</span><span class="p">,</span> <span class="s2">&quot;bhextin&quot;</span><span class="p">,</span> <span class="s2">&quot;pretype&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="s2">&quot;zunc&quot;</span><span class="p">,</span> <span class="s2">&quot;zflag&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;gadata&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;magnit&quot;</span><span class="p">,</span> <span class="s2">&quot;sizemaj&quot;</span><span class="p">,</span> <span class="s2">&quot;sizemin&quot;</span><span class="p">,</span> <span class="s2">&quot;morphol&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;attdat_CON&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;distance_CON&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;mm&quot;</span><span class="p">,</span> <span class="s2">&quot;dmpc&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;attdat&quot;</span><span class="p">:</span> <span class="s2">&quot;attned&quot;</span>
+        <span class="p">}</span>
+
+        <span class="n">queryBase</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%(baseUrl)s%(command)s</span><span class="s2">?uplist=&quot;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">()</span>
+        <span class="n">queryList</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># BUILD THE LIST OF QUERIES</span>
+        <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">theseBatches</span><span class="p">:</span>
+            <span class="n">thisLength</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+            <span class="n">queryUrl</span> <span class="o">=</span> <span class="n">queryBase</span>
+            <span class="c1"># ADD NAMES</span>
+            <span class="k">for</span> <span class="n">thisIndex</span><span class="p">,</span> <span class="n">thisName</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
+                <span class="n">queryUrl</span> <span class="o">=</span> <span class="n">queryUrl</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">thisName</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">thisIndex</span> <span class="o">&lt;</span> <span class="n">thisLength</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">queryUrl</span> <span class="o">=</span> <span class="n">queryUrl</span> <span class="o">+</span> <span class="s2">&quot;%0D&quot;</span>
+            <span class="c1"># ADD PARAMETERS</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">urlParameters</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                        <span class="n">queryUrl</span> <span class="o">=</span> <span class="n">queryUrl</span> <span class="o">+</span> <span class="s2">&quot;&amp;&quot;</span> <span class="o">+</span> \
+                            <span class="n">k</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">queryUrl</span> <span class="o">=</span> <span class="n">queryUrl</span> <span class="o">+</span> <span class="s2">&quot;&amp;&quot;</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">queryList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">queryUrl</span><span class="p">)</span>
+
+        <span class="c1"># PULL THE RESULT PAGES FROM NED</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nedResults</span> <span class="o">=</span> <span class="n">multiobject_download</span><span class="p">(</span>
+            <span class="n">urlList</span><span class="o">=</span><span class="n">queryList</span><span class="p">,</span>
+            <span class="n">downloadDirectory</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
+            <span class="n">timeStamp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span>
+            <span class="n">concurrentDownloads</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">resetFilename</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">credentials</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>  <span class="c1"># { &#39;username&#39; : &quot;...&quot;, &quot;password&quot;, &quot;...&quot; }</span>
+            <span class="n">longTime</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">indexFilenames</span><span class="o">=</span><span class="bp">True</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">thisIndex</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nedResults</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">thisUrl</span> <span class="o">=</span> <span class="n">queryList</span><span class="p">[</span><span class="n">thisIndex</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s1">&#39;cound not download NED results for URL </span><span class="si">%(thisUrl)s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">())</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_convert_html_to_csv</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s1">&#39;completed the ``_build_api_url_and_download_results`` method&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">_output_results</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *output results*</span>
+
+<span class="sd">        **Key Arguments:**</span>
+<span class="sd">            # -</span>
+
+<span class="sd">        **Return:**</span>
+<span class="sd">            - None</span>
+
+<span class="sd">        .. todo::</span>
+
+<span class="sd">            - @review: when complete, clean _output_results method</span>
+<span class="sd">            - @review: when complete add logging</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;starting the ``_output_results`` method&#39;</span><span class="p">)</span>
+
+        <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">maxNameLen</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">maxNameLen</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;ned_name&quot;</span><span class="p">]):</span>
+                <span class="n">maxNameLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;ned_name&quot;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">content</span> <span class="o">+=</span> <span class="s2">&quot;No resuls found&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">thisHeader</span> <span class="o">=</span> <span class="s2">&quot;| &quot;</span>
+            <span class="n">thisLine</span> <span class="o">=</span> <span class="s2">&quot;| &quot;</span>
+            <span class="k">for</span> <span class="n">head</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;ned_name&quot;</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">maxNameLen</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resultSpacing</span>
+                <span class="n">thisHeader</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">head</span><span class="p">)</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">s</span><span class="p">,</span>
+                                              <span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; | &quot;</span>
+                <span class="n">thisLine</span> <span class="o">+=</span> <span class="s2">&quot;:&quot;</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">s</span><span class="p">,</span>
+                                      <span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; | &quot;</span>
+            <span class="n">content</span> <span class="o">+=</span> <span class="n">thisHeader</span>
+            <span class="n">content</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">thisLine</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
+                <span class="n">thisRow</span> <span class="o">=</span> <span class="s2">&quot;| &quot;</span>
+                <span class="k">for</span> <span class="n">head</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;ned_name&quot;</span><span class="p">:</span>
+                        <span class="n">s</span> <span class="o">=</span> <span class="n">maxNameLen</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resultSpacing</span>
+                    <span class="n">thisRow</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="n">head</span><span class="p">])</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">s</span><span class="p">,</span>
+                                                  <span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; | &quot;</span>
+                <span class="n">content</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">thisRow</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quiet</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="k">print</span> <span class="n">content</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputFilePath</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">codecs</span>
+            <span class="n">writeFile</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">outputFilePath</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+            <span class="n">writeFile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+            <span class="n">writeFile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;completed the ``_output_results`` method&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">None</span></div>
+
+    <span class="c1"># use the tab-trigger below for new method</span>
+    <span class="c1"># xt-class-method</span>
+
+    <span class="c1"># 5. @flagged: what actions of the base class(es) need ammending? ammend them here</span>
+    <span class="c1"># Override Method Attributes</span>
+    <span class="c1"># method-override-tmpx</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Dave Young.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -80,7 +80,7 @@ class namesearch(_basesearch):
         **Return:**
             - ``results``
         """
-        self.log.info('starting the ``get`` method')
+        self.log.debug('starting the ``get`` method')
 
         # SPLIT THE LIST OF NAMES INTO BATCHES
         self.theseBatches, self.theseBatchParams = self._split_incoming_queries_into_batches(
@@ -93,7 +93,7 @@ class namesearch(_basesearch):
         self.results, self.headers = self._parse_the_ned_list_results()
         self._output_results()
 
-        self.log.info('completed the ``get`` method')
+        self.log.debug('completed the ``get`` method')
         return self.results
 
     def _build_api_url_and_download_results(
@@ -112,8 +112,8 @@ class namesearch(_basesearch):
             - @review: when complete, clean _build_api_url_and_download_results method
             - @review: when complete add logging
         """
-        self.log.info(
-            'starting the ``_build_api_url_and_download_results`` method')
+        self.log.debug(
+            'completed the ````_build_api_url_and_download_results`` method')
 
         baseUrl = "https://ned.ipac.caltech.edu/cgi-bin/"
         command = "gmd"
@@ -175,7 +175,7 @@ class namesearch(_basesearch):
 
         self._convert_html_to_csv()
 
-        self.log.info(
+        self.log.debug(
             'completed the ``_build_api_url_and_download_results`` method')
         return None
 
@@ -195,7 +195,7 @@ class namesearch(_basesearch):
             - @review: when complete, clean _output_results method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``_output_results`` method')
+        self.log.debug('starting the ``_output_results`` method')
 
         content = ""
         maxNameLen = 0
@@ -240,7 +240,7 @@ class namesearch(_basesearch):
             writeFile.write(content)
             writeFile.close()
 
-        self.log.info('completed the ``_output_results`` method')
+        self.log.debug('completed the ``_output_results`` method')
         return None
 
     # use the tab-trigger below for new method

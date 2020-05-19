@@ -1,13 +1,7 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python
 # encoding: utf-8
 """
-*The Command-Line Util to Run NED querys*
-
-:Author:
-    David Young
-
-:Date Created:
-    May 7, 2015
+Documentation for neddy can be found here: http://neddy.readthedocs.org
 
 Usage:
     neddy [-nuvr] cone (filelist <pathToCoordinateList> <radiusArcsec> | <ra> <dec> <radiusArcsec>) [<outPutFile>]
@@ -25,7 +19,6 @@ Usage:
     pathToCoordinateList  path to list of ra dec radiusArcsec
     outPutFile            path to outputfile
 """
-################# GLOBAL IMPORTS ####################
 import sys
 import os
 os.environ['TERM'] = 'vt100'
@@ -34,9 +27,7 @@ import glob
 import pickle
 from docopt import docopt
 from fundamentals import tools, times
-from neddy.conesearch import conesearch
-from neddy.namesearch import namesearch
-# from ..__init__ import *
+from subprocess import Popen, PIPE, STDOUT
 
 
 def tab_complete(text, state):
@@ -45,14 +36,16 @@ def tab_complete(text, state):
 
 def main(arguments=None):
     """
-    *The main function used when ``cl_utils.py`` is run as a single script from the cl, or when installed as a cl command*
+    *The main function used when `cl_utils.py` is run as a single script from the cl, or when installed as a cl command*
     """
     # setup the command-line util settings
     su = tools(
         arguments=arguments,
         docString=__doc__,
-        logLevel="ERROR",
-        options_first=True
+        logLevel="WARNING",
+        options_first=False,
+        projectName="neddy",
+        defaultSettingsFile=True
     )
     arguments, settings, log, dbConn = su.setup()
 
@@ -61,19 +54,18 @@ def main(arguments=None):
     readline.parse_and_bind("tab: complete")
     readline.set_completer(tab_complete)
 
-    # unpack remaining cl arguments using `exec` to setup the variable names
-    # automatically
-    for arg, val in arguments.iteritems():
+    # UNPACK REMAINING CL ARGUMENTS USING `EXEC` TO SETUP THE VARIABLE NAMES
+    # AUTOMATICALLY
+    a = {}
+    for arg, val in list(arguments.items()):
         if arg[0] == "-":
             varname = arg.replace("-", "") + "Flag"
         else:
             varname = arg.replace("<", "").replace(">", "")
-        if isinstance(val, str) or isinstance(val, unicode):
-            exec(varname + " = '%s'" % (val,))
-        else:
-            exec(varname + " = %s" % (val,))
+        a[varname] = val
         if arg == "--dbConn":
             dbConn = val
+            a["dbConn"] = val
         log.debug('%s = %s' % (varname, val,))
 
     ## START LOGGING ##
@@ -83,7 +75,7 @@ def main(arguments=None):
         (startTime,))
 
     # set options interactively if user requests
-    if "interactiveFlag" in locals() and interactiveFlag:
+    if "interactiveFlag" in a and a["interactiveFlag"]:
 
         # load previous settings
         moduleDirectory = os.path.dirname(__file__) + "/resources"
@@ -110,8 +102,33 @@ def main(arguments=None):
             pickleMe[k] = theseLocals[k]
         pickle.dump(pickleMe, open(pathToPickleFile, "wb"))
 
-    # call the worker function
-    # x-if-settings-or-database-credientials
+    if a["init"]:
+        from os.path import expanduser
+        home = expanduser("~")
+        filepath = home + "/.config/neddy/neddy.yaml"
+        try:
+            cmd = """open %(filepath)s""" % locals()
+            p = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
+        except:
+            pass
+        try:
+            cmd = """start %(filepath)s""" % locals()
+            p = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
+        except:
+            pass
+        return
+
+    ra = a["ra"]
+    dec = a["dec"]
+    radiusArcsec = a["radiusArcsec"]
+    objectName = a["objectName"]
+    pathToCoordinateList = a["pathToCoordinateList"]
+    outPutFile = a["outPutFile"]
+    nearest = a["nearest"]
+    unclassified = a["unclassified"]
+    redshift = a["redshift"]
+
+    # CALL FUNCTIONS/OBJECTS
     if cone and filelist:
         import codecs
         pathToReadFile = pathToCoordinateList

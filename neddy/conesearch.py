@@ -108,7 +108,7 @@ class conesearch(_basesearch):
             - @review: when complete, clean get method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``get`` method')
+        self.log.debug('starting the ``get`` method')
 
         # SEARCH NED WITH SINGLE CONESEARCHES TO RETURN LIST OF MATCHED NAMES
         names, searchParams = self.get_crossmatch_names(
@@ -117,7 +117,7 @@ class conesearch(_basesearch):
         )
 
         # NOW PERFORM A NAME SEARCH AGAINST THE MATCHED NAMES
-        search = namesearch.namesearch(
+        search = namesearch(
             log=self.log,
             names=names,
             quiet=False,
@@ -127,7 +127,7 @@ class conesearch(_basesearch):
         )
         search.get()
 
-        self.log.info('completed the ``get`` method')
+        self.log.debug('completed the ``get`` method')
         return conesearch
 
     # use the tab-trigger below for new method
@@ -150,7 +150,7 @@ class conesearch(_basesearch):
             - @review: when complete, clean _get_ned_query_url method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``_get_ned_query_url`` method')
+        self.log.debug('starting the ``_get_ned_query_url`` method')
 
         radArcMin = float(arcsec) / (60.)
 
@@ -199,7 +199,7 @@ class conesearch(_basesearch):
             for o in in_objtypes3:
                 url = url + "&" + urllib.urlencode({"in_objtypes3": o})
 
-        self.log.info('completed the ``_get_ned_query_url`` method')
+        self.log.debug('completed the ``_get_ned_query_url`` method')
         return url
 
     # use the tab-trigger below for new method
@@ -222,7 +222,7 @@ class conesearch(_basesearch):
             - @review: when complete, clean get_crossmatch_names method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``get_crossmatch_names`` method')
+        self.log.debug('starting the ``get_crossmatch_names`` method')
 
         if listOfCoordinates == False:
             listOfCoordinates = self.listOfCoordinates
@@ -289,7 +289,7 @@ class conesearch(_basesearch):
                     names.append(r["matchName"])
             os.remove(nedResults)
 
-        self.log.info('completed the ``get_crossmatch_names`` method')
+        self.log.debug('completed the ``get_crossmatch_names`` method')
         return names, searchParams
 
     # use the tab-trigger below for new method
@@ -311,7 +311,7 @@ class conesearch(_basesearch):
             - @review: when complete, clean _oversized_subqueries method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``_oversized_subqueries`` method')
+        self.log.debug('starting the ``_oversized_subqueries`` method')
 
         import math
 
@@ -343,7 +343,7 @@ class conesearch(_basesearch):
             radiusArcsec=smallerRadiusArcsec
         )
 
-        self.log.info('completed the ``_oversized_subqueries`` method')
+        self.log.debug('completed the ``_oversized_subqueries`` method')
         return names, searchParams
 
     # use the tab-trigger below for new method

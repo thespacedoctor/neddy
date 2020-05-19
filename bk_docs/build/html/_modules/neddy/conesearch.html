@@ -1,0 +1,570 @@
+
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>neddy.conesearch &mdash; neddy 0.1.1 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../../_static/dryx.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="neddy 0.1.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> neddy
+          
+
+          
+            
+            <img src="../../_static/thespacedoctor_icon_white_circle.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../_includes/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_includes/index.html#usage">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_includes/index.html#documentation">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../_includes/index.html#tutorial">Tutorial</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../autosummary.html">Subpackages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autosummary.html#modules">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autosummary.html#classes">Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../autosummary.html#functions">Functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">neddy</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>neddy.conesearch</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for neddy.conesearch</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/local/bin/python</span>
+<span class="c1"># encoding: utf-8</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">*Perform a conesearch on NED*</span>
+
+<span class="sd">:Author:</span>
+<span class="sd">    David Young</span>
+
+<span class="sd">:Date Created:</span>
+<span class="sd">    May 6, 2015</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">################# GLOBAL IMPORTS ####################</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;TERM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;vt100&#39;</span>
+<span class="kn">import</span> <span class="nn">readline</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">from</span> <span class="nn">docopt</span> <span class="kn">import</span> <span class="n">docopt</span>
+<span class="kn">from</span> <span class="nn">fundamentals.download</span> <span class="kn">import</span> <span class="n">multiobject_download</span>
+<span class="kn">from</span> <span class="nn">fundamentals</span> <span class="kn">import</span> <span class="n">tools</span><span class="p">,</span> <span class="n">times</span>
+<span class="kn">from</span> <span class="nn">neddy</span> <span class="kn">import</span> <span class="n">_basesearch</span>
+<span class="kn">from</span> <span class="nn">neddy</span> <span class="kn">import</span> <span class="n">namesearch</span>
+<span class="c1"># from ..__init__ import *</span>
+
+
+<span class="c1">###################################################################</span>
+<span class="c1"># CLASSES                                                         #</span>
+<span class="c1">###################################################################</span>
+<div class="viewcode-block" id="conesearch"><a class="viewcode-back" href="../../_autosummary/neddy.conesearch.html#neddy.conesearch.conesearch">[docs]</a><span class="k">class</span> <span class="nc">conesearch</span><span class="p">(</span><span class="n">_basesearch</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    *The worker class for the conesearch module*</span>
+
+<span class="sd">    **Key Arguments:**</span>
+<span class="sd">        - ``log`` -- logger</span>
+<span class="sd">        - ``ra`` -- ra</span>
+<span class="sd">        - ``dec`` -- dec</span>
+<span class="sd">        - ``radiusArcsec`` -- radiusArcsec</span>
+<span class="sd">        - ``nearestOnly`` -- return only the nearest object from NED</span>
+<span class="sd">        - ``unclassified`` -- include the unclassified sources in the return results</span>
+<span class="sd">        - ``quiet`` -- don&#39;t print to stdout</span>
+<span class="sd">        - ``listOfCoordinates`` -- list of coordinates ra dec radiusArcsec</span>
+<span class="sd">        - ``outputFilePath`` -- path to output file</span>
+<span class="sd">        - ``verbose`` -- return more metadata for matches</span>
+<span class="sd">        - ``redshift`` -- redshift constraint</span>
+
+<span class="sd">    .. todo::</span>
+
+<span class="sd">        - @review: when complete, clean conesearch class</span>
+<span class="sd">        - @review: when complete add logging</span>
+<span class="sd">        - @review: when complete, decide whether to abstract class to another module</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Initialisation</span>
+
+<div class="viewcode-block" id="conesearch.__init__"><a class="viewcode-back" href="../../_autosummary/neddy.conesearch.html#neddy.conesearch.conesearch.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">log</span><span class="p">,</span>
+        <span class="n">ra</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">dec</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">radiusArcsec</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">nearestOnly</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">unclassified</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">quiet</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">listOfCoordinates</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">outputFilePath</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">redshift</span><span class="o">=</span><span class="bp">False</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">log</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;instansiating a new &#39;conesearch&#39; object&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ra</span> <span class="o">=</span> <span class="n">ra</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dec</span> <span class="o">=</span> <span class="n">dec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arcsec</span> <span class="o">=</span> <span class="n">radiusArcsec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nearestOnly</span> <span class="o">=</span> <span class="n">nearestOnly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unclassified</span> <span class="o">=</span> <span class="n">unclassified</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quiet</span> <span class="o">=</span> <span class="n">quiet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">listOfCoordinates</span> <span class="o">=</span> <span class="n">listOfCoordinates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputFilePath</span> <span class="o">=</span> <span class="n">outputFilePath</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">=</span> <span class="n">redshift</span>
+
+        <span class="c1"># xt-self-arg-tmpx</span>
+
+        <span class="c1"># VARIABLE DATA ATRRIBUTES</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arcmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arcsec</span><span class="p">)</span> <span class="o">/</span> <span class="mf">60.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resultSpacing</span> <span class="o">=</span> <span class="mi">30</span>
+
+        <span class="c1"># Initial Actions</span>
+        <span class="c1"># CREATE A LIST IF SINGLE COORDINATES GIVEN</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">listOfCoordinates</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">listOfCoordinates</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">%(ra)s</span><span class="s2"> </span><span class="si">%(dec)s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">()]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_convert_coordinates_to_decimal_degrees</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">None</span></div>
+
+    <span class="c1"># METHOD ATTRIBUTES</span>
+<div class="viewcode-block" id="conesearch.get"><a class="viewcode-back" href="../../_api/neddy.conesearch.html#neddy.conesearch.conesearch.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *get the conesearch object*</span>
+
+<span class="sd">        **Return:**</span>
+<span class="sd">            - ``conesearch``</span>
+
+<span class="sd">        .. todo::</span>
+
+<span class="sd">            - @review: when complete, clean get method</span>
+<span class="sd">            - @review: when complete add logging</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;starting the ``get`` method&#39;</span><span class="p">)</span>
+
+        <span class="c1"># SEARCH NED WITH SINGLE CONESEARCHES TO RETURN LIST OF MATCHED NAMES</span>
+        <span class="n">names</span><span class="p">,</span> <span class="n">searchParams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_crossmatch_names</span><span class="p">(</span>
+            <span class="n">listOfCoordinates</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">listOfCoordinates</span><span class="p">,</span>
+            <span class="n">radiusArcsec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">arcsec</span>
+        <span class="p">)</span>
+
+        <span class="c1"># NOW PERFORM A NAME SEARCH AGAINST THE MATCHED NAMES</span>
+        <span class="n">search</span> <span class="o">=</span> <span class="n">namesearch</span><span class="o">.</span><span class="n">namesearch</span><span class="p">(</span>
+            <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
+            <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">,</span>
+            <span class="n">quiet</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">searchParams</span><span class="o">=</span><span class="n">searchParams</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">outputFilePath</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">outputFilePath</span>
+        <span class="p">)</span>
+        <span class="n">search</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;completed the ``get`` method&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">conesearch</span></div>
+
+    <span class="c1"># use the tab-trigger below for new method</span>
+    <span class="k">def</span> <span class="nf">_get_ned_query_url</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">raDeg</span><span class="p">,</span>
+            <span class="n">decDeg</span><span class="p">,</span>
+            <span class="n">arcsec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *single ned conesearch*</span>
+
+<span class="sd">        **Key Arguments:**</span>
+<span class="sd">            # -</span>
+
+<span class="sd">        **Return:**</span>
+<span class="sd">            - None</span>
+
+<span class="sd">        .. todo::</span>
+
+<span class="sd">            - @review: when complete, clean _get_ned_query_url method</span>
+<span class="sd">            - @review: when complete add logging</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;starting the ``_get_ned_query_url`` method&#39;</span><span class="p">)</span>
+
+        <span class="n">radArcMin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">arcsec</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">60.</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">z_constraint</span> <span class="o">=</span> <span class="s2">&quot;Available&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">z_constraint</span> <span class="o">=</span> <span class="s2">&quot;Unconstrained&quot;</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://ned.ipac.caltech.edu/cgi-bin/objsearch&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;in_csys&quot;</span><span class="p">:</span> <span class="s2">&quot;Equatorial&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;in_equinox&quot;</span><span class="p">:</span> <span class="s2">&quot;J2000.0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">%(raDeg)0.6f</span><span class="s2">d&quot;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">(),</span>
+            <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">%(decDeg)0.6f</span><span class="s2">d&quot;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">(),</span>
+            <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">%(radArcMin)0.6s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">(),</span>
+            <span class="s2">&quot;hconst&quot;</span><span class="p">:</span> <span class="s2">&quot;73&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;omegam&quot;</span><span class="p">:</span> <span class="s2">&quot;0.27&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;omegav&quot;</span><span class="p">:</span> <span class="s2">&quot;0.73&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;corr_z&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;z_constraint&quot;</span><span class="p">:</span> <span class="n">z_constraint</span><span class="p">,</span>
+            <span class="s2">&quot;z_value1&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;z_value2&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;z_unit&quot;</span><span class="p">:</span> <span class="s2">&quot;z&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ot_include&quot;</span><span class="p">:</span> <span class="s2">&quot;ANY&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nmp_op&quot;</span><span class="p">:</span> <span class="s2">&quot;ANY&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;out_csys&quot;</span><span class="p">:</span> <span class="s2">&quot;Equatorial&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;out_equinox&quot;</span><span class="p">:</span> <span class="s2">&quot;J2000.0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;obj_sort&quot;</span><span class="p">:</span> <span class="s2">&quot;Distance to search center&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;of&quot;</span><span class="p">:</span> <span class="s2">&quot;ascii_bar&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;zv_breaker&quot;</span><span class="p">:</span> <span class="s2">&quot;30000.0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;list_limit&quot;</span><span class="p">:</span> <span class="s2">&quot;500&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;img_stamp&quot;</span><span class="p">:</span> <span class="s2">&quot;NO&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;search_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Near Position Search&quot;</span><span class="p">,</span>
+
+        <span class="p">}</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;?&quot;</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">unclassified</span><span class="p">:</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;&amp;&quot;</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">({</span><span class="s2">&quot;ot_include&quot;</span><span class="p">:</span> <span class="s2">&quot;ANY&quot;</span><span class="p">})</span>
+            <span class="n">in_objtypes1</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Galaxies&quot;</span><span class="p">,</span> <span class="s2">&quot;GPairs&quot;</span><span class="p">,</span> <span class="s2">&quot;GTriples&quot;</span><span class="p">,</span> <span class="s2">&quot;GGroups&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;GClusters&quot;</span><span class="p">,</span> <span class="s2">&quot;QSO&quot;</span><span class="p">,</span> <span class="s2">&quot;QSOGroups&quot;</span><span class="p">,</span> <span class="s2">&quot;GravLens&quot;</span><span class="p">,</span> <span class="s2">&quot;AbsLineSys&quot;</span><span class="p">,</span> <span class="s2">&quot;EmissnLine&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">in_objtypes1</span><span class="p">:</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;&amp;&quot;</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">({</span><span class="s2">&quot;in_objtypes1&quot;</span><span class="p">:</span> <span class="n">o</span><span class="p">})</span>
+            <span class="n">in_objtypes3</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Supernovae&quot;</span><span class="p">,</span> <span class="s2">&quot;HIIregion&quot;</span><span class="p">,</span> <span class="s2">&quot;PN&quot;</span><span class="p">,</span> <span class="s2">&quot;SNR&quot;</span><span class="p">,</span> <span class="s2">&quot;StarAssoc&quot;</span><span class="p">,</span> <span class="s2">&quot;StarClust&quot;</span><span class="p">,</span> <span class="s2">&quot;MolCloud&quot;</span><span class="p">,</span> <span class="s2">&quot;Nova&quot;</span><span class="p">,</span> <span class="s2">&quot;VarStar&quot;</span><span class="p">,</span> <span class="s2">&quot;WolfRayet&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;CarbonStar&quot;</span><span class="p">,</span> <span class="s2">&quot;PofG&quot;</span><span class="p">,</span> <span class="s2">&quot;Other&quot;</span><span class="p">,</span> <span class="s2">&quot;Star&quot;</span><span class="p">,</span> <span class="s2">&quot;BlueStar&quot;</span><span class="p">,</span> <span class="s2">&quot;RedStar&quot;</span><span class="p">,</span> <span class="s2">&quot;Pulsar&quot;</span><span class="p">,</span> <span class="s2">&quot;ReflNeb&quot;</span><span class="p">,</span> <span class="s2">&quot;DblStar&quot;</span><span class="p">,</span> <span class="s2">&quot;EmissnObj&quot;</span><span class="p">,</span> <span class="s2">&quot;EmissnNeb&quot;</span><span class="p">,</span> <span class="s2">&quot;WhiteDwarf&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">in_objtypes3</span><span class="p">:</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="o">+</span> <span class="s2">&quot;&amp;&quot;</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">({</span><span class="s2">&quot;in_objtypes3&quot;</span><span class="p">:</span> <span class="n">o</span><span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;completed the ``_get_ned_query_url`` method&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">url</span>
+
+    <span class="c1"># use the tab-trigger below for new method</span>
+<div class="viewcode-block" id="conesearch.get_crossmatch_names"><a class="viewcode-back" href="../../_api/neddy.conesearch.html#neddy.conesearch.conesearch.get_crossmatch_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_crossmatch_names</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">listOfCoordinates</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">radiusArcsec</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *get corssmatch names*</span>
+
+<span class="sd">        **Key Arguments:**</span>
+<span class="sd">            - ``listOfCoordinates`` -- list of the coordinates to conesearch</span>
+<span class="sd">            - ``radiusArcsec`` -- the search radius</span>
+
+<span class="sd">        **Return:**</span>
+<span class="sd">            - None</span>
+
+<span class="sd">        .. todo::</span>
+
+<span class="sd">            - @review: when complete, clean get_crossmatch_names method</span>
+<span class="sd">            - @review: when complete add logging</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;starting the ``get_crossmatch_names`` method&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">listOfCoordinates</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="n">listOfCoordinates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">listOfCoordinates</span>
+        <span class="k">if</span> <span class="n">radiusArcsec</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="n">radiusArcsec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arcsec</span>
+
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">searchParams</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">nedUrls</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">listOfCoordinates</span><span class="p">):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ned_query_url</span><span class="p">(</span>
+                <span class="n">raDeg</span><span class="o">=</span><span class="n">coord</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">decDeg</span><span class="o">=</span><span class="n">coord</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">arcsec</span><span class="o">=</span><span class="n">radiusArcsec</span>
+            <span class="p">)</span>
+            <span class="n">nedUrls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nedUrls</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">count</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s2">&quot;</span><span class="si">%(count)s</span><span class="s2"> NED conesearch URLs have been built. Requesting from NED ...&quot;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">()</span>
+
+        <span class="n">localUrls</span> <span class="o">=</span> <span class="n">multiobject_download</span><span class="p">(</span>
+            <span class="n">urlList</span><span class="o">=</span><span class="n">nedUrls</span><span class="p">,</span>
+            <span class="n">downloadDirectory</span><span class="o">=</span><span class="s2">&quot;/tmp&quot;</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
+            <span class="n">timeStamp</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span>
+            <span class="n">concurrentDownloads</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">resetFilename</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">credentials</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>  <span class="c1"># { &#39;username&#39; : &quot;...&quot;, &quot;password&quot;, &quot;...&quot; }</span>
+            <span class="n">longTime</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">indexFilenames</span><span class="o">=</span><span class="bp">True</span>
+        <span class="p">)</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">localUrls</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">count</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s2">&quot;</span><span class="si">%(count)s</span><span class="s2"> conesearch results downloaded from NED&quot;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">nedResults</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">localUrls</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">nedResults</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">thisUrl</span> <span class="o">=</span> <span class="n">nedUrls</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s1">&#39;cound not download results for NED URL: </span><span class="si">%(thisUrl)s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">())</span>
+                <span class="k">continue</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">nedResults</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">results</span><span class="p">,</span> <span class="n">resultLen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_the_ned_position_results</span><span class="p">(</span>
+                <span class="n">ra</span><span class="o">=</span><span class="n">listOfCoordinates</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">dec</span><span class="o">=</span><span class="n">listOfCoordinates</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">nedResults</span><span class="o">=</span><span class="n">nedResults</span>
+            <span class="p">)</span>
+            <span class="k">print</span> <span class="s2">&quot;  </span><span class="si">%(resultLen)s</span><span class="s2"> returned from single NED conesearch&quot;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">resultLen</span> <span class="o">&gt;</span> <span class="mi">45000</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s2">&quot; To many results returned from single NED query ... aborting!&quot;</span>
+                <span class="n">subnames</span><span class="p">,</span> <span class="n">subsearchParams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oversized_subqueries</span><span class="p">(</span>
+                    <span class="n">coordinate</span><span class="o">=</span><span class="n">listOfCoordinates</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">radiusArcsec</span><span class="o">=</span><span class="n">radiusArcsec</span>
+                <span class="p">)</span>
+                <span class="n">names</span> <span class="o">+=</span> <span class="n">subnames</span>
+                <span class="n">searchParams</span> <span class="o">+=</span> <span class="n">subsearchParams</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+                    <span class="n">searchParams</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">{</span><span class="s2">&quot;searchIndex&quot;</span><span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;searchRa&quot;</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;searchRa&quot;</span><span class="p">],</span> <span class="s2">&quot;searchDec&quot;</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;searchDec&quot;</span><span class="p">]})</span>
+                    <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;matchName&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;completed the ``get_crossmatch_names`` method&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">names</span><span class="p">,</span> <span class="n">searchParams</span></div>
+
+    <span class="c1"># use the tab-trigger below for new method</span>
+    <span class="k">def</span> <span class="nf">_oversized_subqueries</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">coordinate</span><span class="p">,</span>
+            <span class="n">radiusArcsec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        *subdivide oversized query*</span>
+
+<span class="sd">        **Key Arguments:**</span>
+<span class="sd">            # -</span>
+
+<span class="sd">        **Return:**</span>
+<span class="sd">            - None</span>
+
+<span class="sd">        .. todo::</span>
+
+<span class="sd">            - @review: when complete, clean _oversized_subqueries method</span>
+<span class="sd">            - @review: when complete add logging</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;starting the ``_oversized_subqueries`` method&#39;</span><span class="p">)</span>
+
+        <span class="kn">import</span> <span class="nn">math</span>
+
+        <span class="n">smallerRadiusArcsec</span> <span class="o">=</span> <span class="n">radiusArcsec</span> <span class="o">/</span> <span class="mf">2.</span>
+        <span class="k">print</span> <span class="s2">&quot;Calculating 7 sub-disks for coordinates </span><span class="si">%(coordinate)s</span><span class="s2">, with smaller search radius of </span><span class="si">%(smallerRadiusArcsec)s</span><span class="s2"> arcsec&quot;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">()</span>
+
+        <span class="n">ra</span> <span class="o">=</span> <span class="n">coordinate</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dec</span> <span class="o">=</span> <span class="n">coordinate</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">shifts</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">),</span>
+            <span class="p">(</span><span class="mf">3.</span> <span class="o">/</span> <span class="mf">4.</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.</span><span class="p">)</span> <span class="o">/</span> <span class="mf">4.</span><span class="p">),</span>
+            <span class="p">(</span><span class="mf">3.</span> <span class="o">/</span> <span class="mf">4.</span><span class="p">,</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.</span><span class="p">)</span> <span class="o">/</span> <span class="mf">4.</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">),</span>
+            <span class="p">(</span><span class="o">-</span><span class="mf">3.</span> <span class="o">/</span> <span class="mf">4.</span><span class="p">,</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.</span><span class="p">)</span> <span class="o">/</span> <span class="mf">4.</span><span class="p">),</span>
+            <span class="p">(</span><span class="o">-</span><span class="mf">3.</span> <span class="o">/</span> <span class="mf">4.</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.</span><span class="p">)</span> <span class="o">/</span> <span class="mf">4.</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="n">subDiskCoordinates</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">shifts</span><span class="p">:</span>
+            <span class="n">x1</span> <span class="o">=</span> <span class="n">ra</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">radiusArcsec</span> <span class="o">/</span> <span class="p">(</span><span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+            <span class="n">y1</span> <span class="o">=</span> <span class="n">dec</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">radiusArcsec</span> <span class="o">/</span> <span class="p">(</span><span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+            <span class="n">subDiskCoordinates</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">))</span>
+
+        <span class="n">names</span><span class="p">,</span> <span class="n">searchParams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_crossmatch_names</span><span class="p">(</span>
+            <span class="n">listOfCoordinates</span><span class="o">=</span><span class="n">subDiskCoordinates</span><span class="p">,</span>
+            <span class="n">radiusArcsec</span><span class="o">=</span><span class="n">smallerRadiusArcsec</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;completed the ``_oversized_subqueries`` method&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">names</span><span class="p">,</span> <span class="n">searchParams</span></div>
+
+    <span class="c1"># use the tab-trigger below for new method</span>
+    <span class="c1"># xt-class-method</span>
+
+    <span class="c1"># 5. @flagged: what actions of the base class(es) need ammending? ammend them here</span>
+    <span class="c1"># Override Method Attributes</span>
+    <span class="c1"># method-override-tmpx</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Dave Young.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

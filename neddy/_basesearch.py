@@ -42,8 +42,8 @@ class _basesearch:
         """
         *convert coordinates to decimal degrees*
         """
-        self.log.info(
-            'starting the ``_convert_coordinates_to_decimal_degrees`` method')
+        self.log.debug(
+            'completed the ````_convert_coordinates_to_decimal_degrees`` method')
 
         converter = unit_conversion(
             log=self.log
@@ -81,7 +81,7 @@ class _basesearch:
             self.listOfCoordinates[:] = [[float(s[0]), float(s[1])]
                                          for s in sources]
 
-        self.log.info(
+        self.log.debug(
             'completed the ``_convert_coordinates_to_decimal_degrees`` method')
         return None
 
@@ -100,7 +100,7 @@ class _basesearch:
         **Return:**
             - ``results`` -- list of result dictionaries
         """
-        self.log.info('starting the ``_parse_the_ned_results`` method')
+        self.log.debug('starting the ``_parse_the_ned_results`` method')
 
         results = []
         resultLen = 0
@@ -142,7 +142,7 @@ class _basesearch:
                     if self.nearestOnly:
                         break
 
-        self.log.info('completed the ``_parse_the_ned_results`` method')
+        self.log.debug('completed the ``_parse_the_ned_results`` method')
         return results, resultLen
 
     # use the tab-trigger below for new method
@@ -162,7 +162,7 @@ class _basesearch:
             - @review: when complete, clean _parse_the_ned_results method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``_parse_the_ned_results`` method')
+        self.log.debug('starting the ``_parse_the_ned_results`` method')
 
         results = []
         headers = ["objectName", "objectType", "raDeg", "decDeg",
@@ -230,7 +230,7 @@ class _basesearch:
             if not self.quiet:
                 print thisRow
 
-        self.log.info('completed the ``_parse_the_ned_results`` method')
+        self.log.debug('completed the ``_parse_the_ned_results`` method')
         return results
 
         # use the tab-trigger below for new method
@@ -250,7 +250,7 @@ class _basesearch:
             - @review: when complete, clean _convert_html_to_csv method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``_convert_html_to_csv`` method')
+        self.log.debug('starting the ``_convert_html_to_csv`` method')
 
         import codecs
         allData = ""
@@ -288,7 +288,7 @@ class _basesearch:
             writeFile.write(thisData)
             writeFile.close()
 
-        self.log.info('completed the ``_convert_html_to_csv`` method')
+        self.log.debug('completed the ``_convert_html_to_csv`` method')
         return None
 
     # use the tab-trigger below for new method
@@ -308,7 +308,7 @@ class _basesearch:
             - @review: when complete, clean _parse_the_ned_results method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``_parse_the_ned_list_results`` method')
+        self.log.debug('starting the ``_parse_the_ned_list_results`` method')
 
         results = []
 
@@ -395,7 +395,7 @@ class _basesearch:
 
                 os.remove(thisFile)
 
-        self.log.info('completed the ``_parse_the_ned_list_results`` method')
+        self.log.debug('completed the ``_parse_the_ned_list_results`` method')
         return results, headers
 
     def _split_incoming_queries_into_batches(
@@ -413,8 +413,8 @@ class _basesearch:
             - ``theseBatches`` -- list of batches
             - ``theseBatchParams`` -- params associated with batches
         """
-        self.log.info(
-            'starting the ``_split_incoming_queries_into_batches`` method')
+        self.log.debug(
+            'completed the ````_split_incoming_queries_into_batches`` method')
 
         batchSize = 180
         total = len(sources)
@@ -437,7 +437,7 @@ class _basesearch:
         if len(theseBatchParams) == 0:
             theseBatchParams = False
 
-        self.log.info(
+        self.log.debug(
             'completed the ``_split_incoming_queries_into_batches`` method')
         return theseBatches, theseBatchParams
 
