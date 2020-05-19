@@ -1,31 +1,23 @@
 
-Modules
--------
+**Modules**
 
 .. autosummary::
-   :toctree: _autosummary
    :nosignatures:
 
    neddy.commonutils 
    neddy.docstring_test
-   neddy.utKit 
+   neddy.utKit
 
-
-Classes
--------
+**Classes**
 
 .. autosummary::
-   :toctree: _autosummary
    :nosignatures:
 
    neddy.utKit.utKit 
 
-
-Functions
----------
+**Functions**
 
 .. autosummary::
-   :toctree: _autosummary
    :nosignatures:
 
    neddy.docstring_test.docsting_test 

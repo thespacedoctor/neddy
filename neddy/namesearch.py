@@ -5,17 +5,17 @@
 
 :Author:
     David Young
-
-:Date Created:
-    May 6, 2015
 """
-################# GLOBAL IMPORTS ####################
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 import sys
 import os
 import readline
 import glob
 import pickle
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from docopt import docopt
 from fundamentals.download import multiobject_download
 from fundamentals import tools, times
@@ -25,19 +25,19 @@ from neddy import _basesearch
 # CLASSES                                                         #
 ###################################################################
 
-
 class namesearch(_basesearch):
-
     """
     *The worker class for the namesearch module*
 
-    **Key Arguments:**
-        - ``log`` -- logger
-        - ``name`` -- name
-        - ``quiet`` -- don't print to stdout
-        - ``verbose`` -- return more metadata for matches
-        - ``searchParams`` -- list of dictionaries to prepend to results
-        - ``outputFilePath`` -- path to file to output results to
+    **Key Arguments**
+
+    - ``log`` -- logger
+    - ``name`` -- name
+    - ``quiet`` -- don't print to stdout
+    - ``verbose`` -- return more metadata for matches
+    - ``searchParams`` -- list of dictionaries to prepend to results
+    - ``outputFilePath`` -- path to file to output results to
+    
     """
     # Initialisation
 
@@ -77,10 +77,12 @@ class namesearch(_basesearch):
         """
         *get the namesearch object*
 
-        **Return:**
-            - ``results``
+        **Return**
+
+        - ``results``
+        
         """
-        self.log.info('starting the ``get`` method')
+        self.log.debug('starting the ``get`` method')
 
         # SPLIT THE LIST OF NAMES INTO BATCHES
         self.theseBatches, self.theseBatchParams = self._split_incoming_queries_into_batches(
@@ -93,7 +95,7 @@ class namesearch(_basesearch):
         self.results, self.headers = self._parse_the_ned_list_results()
         self._output_results()
 
-        self.log.info('completed the ``get`` method')
+        self.log.debug('completed the ``get`` method')
         return self.results
 
     def _build_api_url_and_download_results(
@@ -101,19 +103,23 @@ class namesearch(_basesearch):
         """
         *build api url for NED to perform batch name queries*
 
-        **Key Arguments:**
-            # -
+        **Key Arguments**
 
-        **Return:**
-            - None
+        # -
+        
+
+        **Return**
+
+        - None
+        
 
         .. todo::
 
             - @review: when complete, clean _build_api_url_and_download_results method
             - @review: when complete add logging
         """
-        self.log.info(
-            'starting the ``_build_api_url_and_download_results`` method')
+        self.log.debug(
+            'completed the ````_build_api_url_and_download_results`` method')
 
         baseUrl = "https://ned.ipac.caltech.edu/cgi-bin/"
         command = "gmd"
@@ -139,17 +145,17 @@ class namesearch(_basesearch):
             queryUrl = queryBase
             # ADD NAMES
             for thisIndex, thisName in enumerate(batch):
-                queryUrl = queryUrl + urllib.quote(thisName)
+                queryUrl = queryUrl + urllib.parse.quote(thisName)
                 if thisIndex < thisLength - 1:
                     queryUrl = queryUrl + "%0D"
             # ADD PARAMETERS
-            for k, v in urlParameters.iteritems():
+            for k, v in list(urlParameters.items()):
                 if isinstance(v, list):
                     for item in v:
                         queryUrl = queryUrl + "&" + \
-                            k + "=" + urllib.quote(item)
+                            k + "=" + urllib.parse.quote(item)
                 else:
-                    queryUrl = queryUrl + "&" + k + "=" + urllib.quote(v)
+                    queryUrl = queryUrl + "&" + k + "=" + urllib.parse.quote(v)
             queryList.append(queryUrl)
 
         # PULL THE RESULT PAGES FROM NED
@@ -175,7 +181,7 @@ class namesearch(_basesearch):
 
         self._convert_html_to_csv()
 
-        self.log.info(
+        self.log.debug(
             'completed the ``_build_api_url_and_download_results`` method')
         return None
 
@@ -184,18 +190,22 @@ class namesearch(_basesearch):
         """
         *output results*
 
-        **Key Arguments:**
-            # -
+        **Key Arguments**
 
-        **Return:**
-            - None
+        # -
+        
+
+        **Return**
+
+        - None
+        
 
         .. todo::
 
             - @review: when complete, clean _output_results method
             - @review: when complete add logging
         """
-        self.log.info('starting the ``_output_results`` method')
+        self.log.debug('starting the ``_output_results`` method')
 
         content = ""
         maxNameLen = 0
@@ -232,7 +242,7 @@ class namesearch(_basesearch):
                 content += "\n" + thisRow
 
         if self.quiet == False:
-            print content
+            print(content)
         if self.outputFilePath:
             import codecs
             writeFile = codecs.open(
@@ -240,7 +250,7 @@ class namesearch(_basesearch):
             writeFile.write(content)
             writeFile.close()
 
-        self.log.info('completed the ``_output_results`` method')
+        self.log.debug('completed the ``_output_results`` method')
         return None
 
     # use the tab-trigger below for new method
