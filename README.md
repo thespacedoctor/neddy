@@ -9,8 +9,8 @@
 
 <!-- STATUS BADGES -->  
 
-[![](http://167.99.90.204:8080/buildStatus/icon?job=neddy%2Fmaster&subject=build%20master)](http://167.99.90.204:8080/blue/organizations/jenkins/neddy/activity?branch=master)  
-[![](http://167.99.90.204:8080/buildStatus/icon?job=neddy%2Fdevelop&subject=build%20dev)](http://167.99.90.204:8080/blue/organizations/jenkins/neddy/activity?branch=develop)  
+[![](http://167.71.135.11:8080/buildStatus/icon?job=neddy%2Fmaster&subject=build%20master)](http://167.71.135.11:8080/blue/organizations/jenkins/neddy/activity?branch=master)  
+[![](http://167.71.135.11:8080/buildStatus/icon?job=neddy%2Fdevelop&subject=build%20dev)](http://167.71.135.11:8080/blue/organizations/jenkins/neddy/activity?branch=develop)  
 [![](https://cdn.jsdelivr.net/gh/thespacedoctor/neddy@master/coverage.svg)](https://raw.githack.com/thespacedoctor/neddy/master/htmlcov/index.html)  
 [![](https://readthedocs.org/projects/neddy/badge/?version=master)](https://neddy.readthedocs.io/en/master/)  
 [![](https://img.shields.io/github/issues/thespacedoctor/neddy/type:%20bug?label=bug%20issues)](https://github.com/thespacedoctor/neddy/issues?q=is%3Aissue+is%3Aopen+label%3A%22type%3A+bug%22+)  
