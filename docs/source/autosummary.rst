@@ -18,6 +18,5 @@ Classes
    :nosignatures:
 
    neddy.conesearch
-   neddy.namesearch
-   neddy.utKit.utKit 
+   neddy.namesearch 
 

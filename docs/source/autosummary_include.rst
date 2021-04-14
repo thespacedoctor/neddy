@@ -13,8 +13,7 @@
    :nosignatures:
 
    neddy.conesearch
-   neddy.namesearch
- 
+   neddy.namesearch 
 
 **Functions**
 
