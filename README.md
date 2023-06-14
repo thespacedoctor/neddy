@@ -1,5 +1,10 @@
 # neddy
 
+
+[![](https://zenodo.org/badge/35160792.svg)](https://zenodo.org/badge/latestdoi/35160792) 
+
+
+
 <!-- INFO BADGES -->  
 
 [![](https://img.shields.io/pypi/pyversions/neddy)](https://pypi.org/project/neddy/)  
@@ -25,4 +30,17 @@ Documentation for neddy is hosted by [Read the Docs](https://neddy.readthedocs.i
 * 
 
 
+## How to cite neddy
 
+If you use `neddy` in your work, please cite using the following BibTeX entry: 
+
+```bibtex
+@software{Young_neddy,
+    author = {Young, David R.},
+    doi = {10.5281/zenodo.8037633},
+    license = {GPL-3.0-only},
+    title = {{neddy}},
+    url = {https://github.com/thespacedoctor/neddy}
+}
+```
+ 
