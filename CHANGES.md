@@ -1,6 +1,11 @@
 
 ## Release Notes
 
+**v0.4.0 - September 19, 2023**
+
+* CL-utils clean up
+* Code ready to be released into the wild
+* Doc updates
 
 **v0.3.1 - May 11, 2022**
 
