@@ -1,4 +1,4 @@
-conesearch *(class)*
+﻿conesearch *(class)*
 ==========================
 
 .. currentmodule:: neddy
@@ -97,10 +97,6 @@ conesearch *(class)*
    .. 
    ..     
    ..          ~conesearch._parse_the_ned_list_results
-   ..      
-   .. 
-   ..     
-   ..          ~conesearch._parse_the_ned_object_results
    ..      
    .. 
    ..     

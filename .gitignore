@@ -1,7 +1,3 @@
-
-test-reports
-
-reports
 .metadata
 *~
 *.sublime-project
@@ -16,7 +12,10 @@ _git*
 cover/
 html_test_coverage_report/
 _ignore_*
-
+build
+*.gem
+*.gemspec
+Gemfile.lock
 # Compiled python modules.
 *.pyc
 
@@ -26,11 +25,10 @@ _ignore_*
 # Python egg metadata, regenerated from source files by setuptools.
 /*.egg-info
 /*.egg
-/build
+build/
 /docs/build
 
-package_description
-
+logger.log
 ## Apache logs
 logs/*.log
 transients_cache/
@@ -40,3 +38,13 @@ test_database.sql
 path_to_settings.yaml
 blog-post.md
 blog-post.rst
+/blog-post.rst-e
+/README.rst-e
+.cache
+.cache/*
+/prof
+*.rst
+*.*.rst
+/docs/source/autosummary_include.rst
+/docs/source/_autosummary
+/docs/source/autosummary.rst

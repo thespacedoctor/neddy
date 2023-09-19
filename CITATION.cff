@@ -7,6 +7,6 @@ authors:
   orcid: "https://orcid.org/0000-0002-1229-2499"
 doi: 10.5281/zenodo.7970743
 url: "https://github.com/thespacedoctor/neddy"
-abstract: query the Nasa Extra-Galactic (NED) database via the command-line and programmatically.
+abstract: Query the Nasa Extra-Galactic (NED) database via the command-line and programmatically.
 keywords: [astronomy]
 license: GPL-3.0-only

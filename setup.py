@@ -12,7 +12,6 @@ def readme():
 
 install_requires = [
     'pyyaml',
-    'neddy',
     'fundamentals',
     'astrocalc',
     'eventlet',
@@ -23,17 +22,11 @@ install_requires = [
 # READ THE DOCS SERVERS
 exists = os.path.exists("/home/docs/")
 if exists:
-    c_exclude_list = ['healpy', 'astropy',
-                      'numpy', 'sherlock', 'wcsaxes', 'HMpTy', 'ligo-gracedb']
-    for e in c_exclude_list:
-        try:
-            install_requires.remove(e)
-        except:
-            pass
+    install_requires = ['fundamentals']
 
 setup(name="neddy",
       version=__version__,
-      description="query the Nasa Extra-Galactic (NED) database via the command-line and programmatically",
+      description="Query the Nasa Extra-Galactic (NED) database via the command-line and programmatically",
       long_description=readme(),
       long_description_content_type='text/markdown',
       classifiers=[

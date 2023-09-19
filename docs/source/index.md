@@ -1,19 +1,25 @@
-
-
 {{../../README.md}}
 
 ```eval_rst
 .. toctree::
-   :maxdepth: 4
-   :caption: Table of Contents
+   :maxdepth: 1
+   :hidden:
 
-   install
-   initialisation
-   todolist
-   changes_link
+   Get Started <index>
 ```
 
-## API Reference
+{{usage.md}}
+
+```eval_rst
+.. toctree::
+   :maxdepth: 4
+   :hidden:
+
+   Object Name Query <name_search>
+   Sky-Location Query <conesearch>
+
+   changes_link
+```
 
 ```eval_rst
 .. toctree::
@@ -30,14 +36,3 @@
 
    genindex
 ```
-
-
-```eval_rst
-.. include:: /autosummary_include.rst
-```
-
-```eval_rst
-.. include:: /genindex.rst
-```
-
-{{../../CHANGES.md}}

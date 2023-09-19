@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from unittest import mock
 from builtins import str
 import sys
 import os
@@ -22,16 +23,20 @@ class Mock(MagicMock):
         return Mock()
 
 
+# Mock open3d because it fails to build in readthedocs
 MOCK_MODULES = ['numpy', 'scipy', 'matplotlib', 'matplotlib.colors',
-                'matplotlib.pyplot', 'matplotlib.cm', 'matplotlib.path', 'matplotlib.patches', 'matplotlib.projections', 'matplotlib.projections.geo', 'healpy', 'astropy', 'astropy.io', 'pylibmc', 'HMpTy', 'HMpTy.mysql', 'ligo', 'ligo.gracedb', 'ligo.gracedb.rest', 'pandas']
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+                'matplotlib.pyplot', 'matplotlib.cm', 'matplotlib.path', 'matplotlib.patches', 'matplotlib.projections', 'matplotlib.projections.geo', 'healpy', 'astropy', 'astropy.io', 'pylibmc', 'HMpTy', 'HMpTy.mysql', 'ligo', 'ligo.skymap', 'ligo.gracedb', 'ligo.gracedb.rest', 'pandas', 'astropy-healpix']
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()
 
 # WHERE DOES THIS conf.py FILE LIVE?
 moduleDirectory = os.path.dirname(os.path.realpath(__file__))
 # GET PACKAGE __version__ INTO locals()
 exec(open(moduleDirectory + "/../../neddy/__version__.py").read())
 
-sys.path.insert(0, os.path.abspath('../../neddy/neddy'))
+
+sys.path.insert(0, os.path.abspath(
+    '../../neddy/neddy'))
 
 
 autosummary_generate = True
@@ -62,7 +67,7 @@ html_theme_options = {
     'titles_only': False,
     'github_user': 'thespacedoctor',
     'github_repo': 'neddy',
-    'strap_line': "query the Nasa Extra-Galactic (NED) database via the command-line and programmatically"
+    'strap_line': "Query the Nasa Extra-Galactic (NED) database via the command-line and programmatically"
 }
 html_theme_path = ['_static/whistles-theme/sphinx/_themes']
 # html_title = None
@@ -81,6 +86,7 @@ rst_epilog = u"""
 .. |tsd| replace:: thespacedoctor
 """ % locals()
 link_resolver_url = "https://github.com/thespacedoctor/neddy/tree/master"
+
 
 # General information about the project.
 now = datetime.now()
@@ -155,9 +161,13 @@ def updateUsageMd():
         return None
     usageString = ""
     for l in usage.split("\n"):
-        usageString += "    " + l + "\n"
+        if "Documentation for" not in l:
+            usageString += f"{l}\n"
 
     usage = """
+## Command-line Usage
+
+Here is neddy's entire CLI usage. More detail on each command can be found elsewhere in the docs.
 
 ```bash 
 %(usageString)s
@@ -212,7 +222,7 @@ def generateAutosummaryIndex():
     allClasses = []
     allFunctions = []
     allMethods = []
-    for sp in allSubpackages:
+    for sp in set(allSubpackages):
         for name, obj in inspect.getmembers(__import__(sp, fromlist=[''])):
             if inspect.ismodule(obj):
                 if name in ["numpy"]:
@@ -224,7 +234,7 @@ def generateAutosummaryIndex():
                 #     allModules.append(sp + "." + name)
 
     moreModules = []
-    for spm in allSubpackages + allModules:
+    for spm in set(allSubpackages + allModules):
         for name, obj in inspect.getmembers(__import__(spm, fromlist=[''])):
             if name[:2] == "__" or allSubpackages[0] not in name:
                 continue
@@ -233,7 +243,7 @@ def generateAutosummaryIndex():
             except:
                 pass
 
-    for spm in allSubpackages + allModules + moreModules:
+    for spm in set(allSubpackages + allModules + moreModules):
         for name, obj in inspect.getmembers(__import__(spm, globals(), locals(), fromlist=[''], level=0)):
             if name[:2] == "__":
                 continue

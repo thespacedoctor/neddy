@@ -1,4 +1,4 @@
-namesearch *(class)*
+﻿namesearch *(class)*
 ==========================
 
 .. currentmodule:: neddy
@@ -93,10 +93,6 @@ namesearch *(class)*
    .. 
    ..     
    ..          ~namesearch._parse_the_ned_list_results
-   ..      
-   .. 
-   ..     
-   ..          ~namesearch._parse_the_ned_object_results
    ..      
    .. 
    ..     
