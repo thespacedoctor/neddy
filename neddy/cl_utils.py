@@ -4,40 +4,53 @@
 Documentation for neddy can be found here: http://neddy.readthedocs.org
 
 Usage:
-    neddy [-nuvr] cone (filelist <pathToCoordinateList> <radiusArcsec> | <ra> <dec> <radiusArcsec>) [<outPutFile>]
-    neddy [-v] obj <objectName> [<objectName>...]
-    
-    -h, --help            show this help message
-    -n, --nearest         nearest object only
-    -u, --unclassified    include unclassifed extra-galaxtic objects
-    -v, --verbose         return more metadata for matches
-    -r, --redshift        redshift must be available
+    neddy init
+    neddy [-nuvr] cone <ra> <dec> <radiusArcsec> [--o <outputFile>]
+    neddy [-nuvr] cones <pathToCoordinateList> <radiusArcsec> [--o <outputFile>]
+    neddy [-v] name <objectName> [<objectName>...] [--o <outputFile>]
+
+Commands:    
+    init                  initialise neddy for the first time
+    cone                  perform a single conesearch on NED and return any matches
+    cones                 perform bulk conesearches on NED and return any matches
+    name                  perform name search(es) on NED and return any matches
+
+Arguments:
     ra                    ra (decimal degrees or sexegesimal)
     dec                   dec (decimal degrees or sexegesimal)
     radiusArcsec          radiusArcsec (conesearch radius)
     objectName            objectName (the name of the object)
-    pathToCoordinateList  path to list of ra dec radiusArcsec
-    outPutFile            path to outputfile
+    pathToCoordinateList  path to list of space separated ra & dec (one coordinate set per line, decimal degrees or sexegesimal)
+    --o outputFile        path to outputFile 
+    
+Options:
+    -h, --help            show this help message
+    -n, --nearest         return the nearest object only
+    -u, --unclassified    include unclassified extra-galactic objects
+    -v, --verbose         return more metadata for matches
+    -r, --redshift        redshift must be available
 """
+from subprocess import Popen, PIPE, STDOUT
+from fundamentals import tools, times
+from docopt import docopt
+import pickle
+import glob
+import readline
 from builtins import str
 import sys
 import os
 os.environ['TERM'] = 'vt100'
-import readline
-import glob
-import pickle
-from docopt import docopt
-from fundamentals import tools, times
-from subprocess import Popen, PIPE, STDOUT
+
 
 def tab_complete(text, state):
     return (glob.glob(text + '*') + [None])[state]
+
 
 def main(arguments=None):
     """
     *The main function used when `cl_utils.py` is run as a single script from the cl, or when installed as a cl command*
     """
-    # setup the command-line util settings
+    # SETUP THE COMMAND-LINE UTIL SETTINGS
     su = tools(
         arguments=arguments,
         docString=__doc__,
@@ -47,11 +60,6 @@ def main(arguments=None):
         defaultSettingsFile=True
     )
     arguments, settings, log, dbConn = su.setup()
-
-    # tab completion for raw_input
-    readline.set_completer_delims(' \t\n;')
-    readline.parse_and_bind("tab: complete")
-    readline.set_completer(tab_complete)
 
     # UNPACK REMAINING CL ARGUMENTS USING `EXEC` TO SETUP THE VARIABLE NAMES
     # AUTOMATICALLY
@@ -73,34 +81,6 @@ def main(arguments=None):
         '--- STARTING TO RUN THE cl_utils.py AT %s' %
         (startTime,))
 
-    # set options interactively if user requests
-    if "interactiveFlag" in a and a["interactiveFlag"]:
-
-        # load previous settings
-        moduleDirectory = os.path.dirname(__file__) + "/resources"
-        pathToPickleFile = "%(moduleDirectory)s/previousSettings.p" % locals()
-        try:
-            with open(pathToPickleFile):
-                pass
-            previousSettingsExist = True
-        except:
-            previousSettingsExist = False
-        previousSettings = {}
-        if previousSettingsExist:
-            previousSettings = pickle.load(open(pathToPickleFile, "rb"))
-
-        # x-raw-input
-        # x-boolean-raw-input
-        # x-raw-input-with-default-value-from-previous-settings
-
-        # save the most recently used requests
-        pickleMeObjects = []
-        pickleMe = {}
-        theseLocals = locals()
-        for k in pickleMeObjects:
-            pickleMe[k] = theseLocals[k]
-        pickle.dump(pickleMe, open(pathToPickleFile, "wb"))
-
     if a["init"]:
         from os.path import expanduser
         home = expanduser("~")
@@ -117,18 +97,23 @@ def main(arguments=None):
             pass
         return
 
+    # UNPACK USEAGE COMMANDS & ARGUMENTS
     ra = a["ra"]
     dec = a["dec"]
     radiusArcsec = a["radiusArcsec"]
     objectName = a["objectName"]
+    name = a["name"]
     pathToCoordinateList = a["pathToCoordinateList"]
-    outPutFile = a["outPutFile"]
-    nearest = a["nearest"]
-    unclassified = a["unclassified"]
-    redshift = a["redshift"]
+    outputFile = a["oFlag"]
+    nearestFlag = a["nearestFlag"]
+    unclassifiedFlag = a["unclassifiedFlag"]
+    redshiftFlag = a["redshiftFlag"]
+    verboseFlag = a["verboseFlag"]
+    cone = a["cone"]
+    cones = a["cones"]
 
     # CALL FUNCTIONS/OBJECTS
-    if cone and filelist:
+    if cones:
         import codecs
         pathToReadFile = pathToCoordinateList
         readFile = codecs.open(pathToReadFile, encoding='utf-8', mode='r')
@@ -138,16 +123,18 @@ def main(arguments=None):
             line = line.strip()
             [ra, dec] = line.split()
             listOfCoordinates.append(str(ra) + " " + str(dec))
+        from .conesearch import conesearch
         search = conesearch(
             log=log,
             radiusArcsec=radiusArcsec,
             nearestOnly=nearestFlag,
             unclassified=unclassifiedFlag,
             listOfCoordinates=listOfCoordinates,
-            outputFilePath=outPutFile,
+            outputFilePath=outputFile,
             verbose=verboseFlag,
             redshift=redshiftFlag)
     elif cone:
+        from .conesearch import conesearch
         search = conesearch(
             log=log,
             ra=ra,
@@ -155,18 +142,19 @@ def main(arguments=None):
             radiusArcsec=radiusArcsec,
             nearestOnly=nearestFlag,
             unclassified=unclassifiedFlag,
-            outputFilePath=outPutFile,
+            outputFilePath=outputFile,
             verbose=verboseFlag,
             redshift=redshiftFlag
         )
-    elif obj:
+    elif name:
+        from .namesearch import namesearch
         search = namesearch(
             log=log,
             names=objectName,
             verbose=verboseFlag,
-            outputFilePath=outPutFile
+            outputFilePath=outputFile
         )
-    search.get()
+    results = search.get()
 
     if "dbConn" in locals() and dbConn:
         dbConn.commit()
@@ -178,6 +166,7 @@ def main(arguments=None):
              (endTime, runningTime, ))
 
     return
+
 
 if __name__ == '__main__':
     main()

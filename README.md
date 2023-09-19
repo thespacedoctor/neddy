@@ -3,8 +3,6 @@
 
 [![](https://zenodo.org/badge/35160792.svg)](https://zenodo.org/badge/latestdoi/35160792) 
 
-
-
 <!-- INFO BADGES -->  
 
 [![](https://img.shields.io/pypi/pyversions/neddy)](https://pypi.org/project/neddy/)  

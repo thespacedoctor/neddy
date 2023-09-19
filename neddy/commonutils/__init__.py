@@ -1,3 +1,3 @@
 """
-*common tools used throughout package*
+*common tools used throughout the neddy package*
 """

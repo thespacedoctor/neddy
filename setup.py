@@ -16,7 +16,8 @@ install_requires = [
     'fundamentals',
     'astrocalc',
     'eventlet',
-    'numpy'
+    'numpy',
+    'unicodecsv'
 ]
 
 # READ THE DOCS SERVERS
@@ -38,7 +39,7 @@ setup(name="neddy",
       classifiers=[
           'Development Status :: 4 - Beta',
           'License :: OSI Approved :: MIT License',
-          'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.9',
           'Topic :: Utilities',
       ],
       keywords=['ned, query, astronomy, conesearch'],

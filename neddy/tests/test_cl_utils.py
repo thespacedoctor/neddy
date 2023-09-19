@@ -37,18 +37,88 @@ except:
 # COPY INPUT TO OUTPUT DIR
 shutil.copytree(pathToInputDir, pathToOutputDir)
 
-# Recursively create missing directories
+# RECURSIVELY CREATE MISSING DIRECTORIES
 if not os.path.exists(pathToOutputDir):
     os.makedirs(pathToOutputDir)
 
 
-# class test_cl_utils(unittest.TestCase):
+class test_cl_utils(unittest.TestCase):
 
-#     def test_init(self):
-#         # TEST CL-OPTIONS
-#         command = "neddy init"
-#         args = docopt(doc, command.split(" ")[1:])
-#         cl_utils.main(args)
-#         return
+    import pytest
+
+    def test_init(self):
+        # TEST INITIALISATION OF NEDDY
+        command = "neddy init"
+        args = docopt(doc, command.split(" ")[1:])
+        cl_utils.main(args)
+        return
+
+    @pytest.mark.full
+    def test_conesearch(self):
+        # RUN A SINGLE CONESEARCH ON NED
+        command = "neddy cone 02:27:16.9 +33:34:45 4.0"
+        args = docopt(doc, command.split(" ")[1:])
+        cl_utils.main(args)
+
+        # RETURN A MORE VERBOSE OUTPUT
+        command = "neddy -v cone 02:27:16.9 +33:34:45 4.0"
+        args = docopt(doc, command.split(" ")[1:])
+        cl_utils.main(args)
+
+        # RETURN THE NEAREST OBJECT ONLY
+        command = "neddy -n cone 02:27:16.9 +33:34:45 4.0"
+        args = docopt(doc, command.split(" ")[1:])
+        cl_utils.main(args)
+
+        # INCLUDE UNCLASSIFIED EXTRA-GALACTIC OBJECTS
+        command = "neddy -u cone 02:27:16.9 +33:34:45 4.0"
+        args = docopt(doc, command.split(" ")[1:])
+        cl_utils.main(args)
+
+        # REDSHIFT MUST BE AVAILABLE
+        command = "neddy -r cone 02:27:16.9 +33:34:45 4.0"
+        args = docopt(doc, command.split(" ")[1:])
+        cl_utils.main(args)
+
+        # WRITE THE RESULTS TO FILE
+        command = f"neddy -r cone 02:27:16.9 +33:34:45 4.0 --o {pathToOutputDir}/results.csv"
+        args = docopt(doc, command.split(" ")[1:])
+        cl_utils.main(args)
+        return
+
+    def test_conesearch_all(self):
+        # RUN A SINGLE CONESEARCH ON NED
+        command = f"neddy -vnur cone 02:27:16.9 +33:34:45 4.0 --o {pathToOutputDir}/results.csv"
+        args = docopt(doc, command.split(" ")[1:])
+        cl_utils.main(args)
+
+    def test_conesearches(self):
+        # RUN MULTIPLE NED CONESEARCHES
+        command = f"neddy -vn cones {pathToOutputDir}/coordinates.txt 4.0"
+        args = docopt(doc, command.split(" ")[1:])
+        cl_utils.main(args)
+
+        # RUN MULTIPLE NED CONESEARCHES AND OUTPUT TO FILE
+        command = f"neddy -vn cones {pathToOutputDir}/coordinates.txt 4.0 --o {pathToOutputDir}/results.csv"
+        args = docopt(doc, command.split(" ")[1:])
+        cl_utils.main(args)
+        return
+
+    def test_name_searches(self):
+        # RUN A SINGLE NED NAME SEARCH
+        command = f"neddy -v name m31"
+        args = docopt(doc, command.split(" ")[1:])
+        cl_utils.main(args)
+
+        # RUN MULTIPLE NED NAME SEARCHES
+        command = f"neddy -v name m31 m51 m101"
+        args = docopt(doc, command.split(" ")[1:])
+        cl_utils.main(args)
+
+        # RUN MULTIPLE NED NAME SEARCHES AND OUTPUT TO FILE
+        command = f"neddy -v name m31 m51 m101 --o {pathToOutputDir}/results.csv"
+        args = docopt(doc, command.split(" ")[1:])
+        cl_utils.main(args)
+        return
 
     # x-class-to-test-named-worker-function

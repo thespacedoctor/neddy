@@ -11,25 +11,9 @@
 """
 from __future__ import print_function
 from __future__ import division
-################# GLOBAL IMPORTS ####################
-from builtins import zip
-from builtins import str
-from builtins import range
-from builtins import object
-from past.utils import old_div
 import sys
 import os
 os.environ['TERM'] = 'vt100'
-import readline
-import glob
-import pickle
-import codecs
-import re
-import string
-import csv
-from docopt import docopt
-from astrocalc.coords import unit_conversion
-from fundamentals import tools, times
 
 
 class _basesearch(object):
@@ -37,7 +21,6 @@ class _basesearch(object):
     """
     The base-class for searching NED
     """
-    # Initialisation
 
     def __init__(
         self
@@ -52,6 +35,7 @@ class _basesearch(object):
         self.log.debug(
             'completed the ````_convert_coordinates_to_decimal_degrees`` method')
 
+        from astrocalc.coords import unit_conversion
         converter = unit_conversion(
             log=self.log
         )
@@ -98,7 +82,7 @@ class _basesearch(object):
             dec,
             nedResults):
         """
-        *parse the ned results*
+        *parse the results of a NED conesearch and return as python dicts*
 
         **Key Arguments:**
             - ``ra`` -- the search ra
@@ -106,9 +90,13 @@ class _basesearch(object):
 
         **Return:**
             - ``results`` -- list of result dictionaries
+            - ``resultLen`` -- the number of matches returned
         """
         self.log.debug('starting the ``_parse_the_ned_results`` method')
-
+        import csv
+        import string
+        import re
+        import codecs
         results = []
         resultLen = 0
         if nedResults:
@@ -155,117 +143,15 @@ class _basesearch(object):
         self.log.debug('completed the ``_parse_the_ned_results`` method')
         return results, resultLen
 
-    # use the tab-trigger below for new method
-    def _parse_the_ned_object_results(
-            self):
-        """
-        *parse the ned results*
-
-        **Key Arguments:**
-            # -
-
-        **Return:**
-            - None
-
-        .. todo::
-
-            - @review: when complete, clean _parse_the_ned_results method
-            - @review: when complete add logging
-        """
-        self.log.debug('starting the ``_parse_the_ned_results`` method')
-
-        results = []
-        headers = ["objectName", "objectType", "raDeg", "decDeg",
-                   "redshift", "redshiftFlag"]
-        if self.nedResults:
-            pathToReadFile = self.nedResults
-            try:
-                self.log.debug("attempting to open the file %s" %
-                               (pathToReadFile,))
-                readFile = codecs.open(
-                    pathToReadFile, encoding='utf-8', mode='rb')
-                thisData = readFile.read()
-                readFile.close()
-            except IOError as e:
-                message = 'could not open the file %s' % (pathToReadFile,)
-                self.log.critical(message)
-                raise IOError(message)
-            readFile.close()
-
-            matchObject = re.search(
-                r"No\.\|Object Name.*?\n(.*)", thisData, re.S)
-            if matchObject:
-                # Print the header for stdout
-                thisHeader = "| "
-                for head in headers:
-                    thisHeader += str(head).ljust(self.resultSpacing,
-                                                  ' ') + " | "
-                if not self.quiet:
-                    print(thisHeader)
-                try:
-                    theseLines = str.split(matchObject.group(), '\n')
-                except:
-                    theseLines = string.split(matchObject.group(), '\n')
-                csvReader = csv.DictReader(
-                    theseLines, dialect='excel', delimiter='|', quotechar='"')
-                for row in csvReader:
-                    thisDict = {}
-                    thisRow = "| "
-                    thisDict["raDeg"] = row["RA(deg)"].strip()
-                    thisDict["decDeg"] = row["DEC(deg)"].strip()
-                    thisDict["redshift"] = row["Redshift"].strip()
-                    thisDict["redshiftFlag"] = row["Redshift Flag"].strip()
-                    thisDict["objectName"] = row["Object Name"].strip()
-                    thisDict["objectType"] = row["Type"].strip()
-
-                    results.append(thisDict)
-                    for head in headers:
-                        thisRow += str(thisDict[head]
-                                       ).ljust(self.resultSpacing, ' ') + " | "
-                    if not self.quiet:
-                        print(thisRow)
-
-            else:
-                for head in headers:
-                    thisRow += str("").ljust(self.resultSpacing, ' ') + " | "
-                if not self.quiet:
-                    print(thisRow)
-        else:
-            # Print the header for stdout
-            thisHeader = "| "
-            for head in headers:
-                thisHeader += str(head).ljust(self.resultSpacing, ' ') + " | "
-            if not self.quiet:
-                print(thisHeader)
-            thisRow = "| "
-            for head in headers:
-                thisRow += str("").ljust(self.resultSpacing, ' ') + " | "
-            if not self.quiet:
-                print(thisRow)
-
-        self.log.debug('completed the ``_parse_the_ned_results`` method')
-        return results
-
-        # use the tab-trigger below for new method
     def _convert_html_to_csv(
             self):
         """
-        *contert html to csv*
-
-        **Key Arguments:**
-            # -
-
-        **Return:**
-            - None
-
-        .. todo::
-
-            - @review: when complete, clean _convert_html_to_csv method
-            - @review: when complete add logging
+        *convert NED's html output to csv format*
         """
         self.log.debug('starting the ``_convert_html_to_csv`` method')
 
         import codecs
+        import re
         allData = ""
         regex1 = re.compile(
             r'.*<PRE><strong>   (.*?)</strong>(.*?)</PRE></TABLE>.*', re.I | re.S)
@@ -304,17 +190,15 @@ class _basesearch(object):
         self.log.debug('completed the ``_convert_html_to_csv`` method')
         return None
 
-    # use the tab-trigger below for new method
     def _parse_the_ned_list_results(
             self):
         """
-        *parse the ned results*
-
-        **Key Arguments:**
-            # -
+        *parse the NED results*
 
         **Return:**
-            - None
+            - ``results`` -- 
+            - ``headers`` -- description. Default **. [opt1|opt2]
+            -
 
         .. todo::
 
@@ -322,6 +206,11 @@ class _basesearch(object):
             - @review: when complete add logging
         """
         self.log.debug('starting the ``_parse_the_ned_list_results`` method')
+        import csv
+        import string
+        import re
+        import codecs
+        self.resultSpacing = 30
 
         results = []
 
@@ -432,6 +321,8 @@ class _basesearch(object):
         """
         self.log.debug(
             'completed the ````_split_incoming_queries_into_batches`` method')
+
+        from past.utils import old_div
 
         batchSize = 180
         total = len(sources)

@@ -8,53 +8,50 @@
 """
 from __future__ import print_function
 from __future__ import division
+from neddy import _basesearch
+import os
+import sys
 from future import standard_library
 standard_library.install_aliases()
-from past.utils import old_div
-import sys
-import os
 os.environ['TERM'] = 'vt100'
-import readline
-import glob
-import pickle
-import urllib.request, urllib.parse, urllib.error
-from docopt import docopt
-from fundamentals.download import multiobject_download
-from fundamentals import tools, times
-from neddy import _basesearch
-from neddy import namesearch
-# from ..__init__ import *
 
-###################################################################
-# CLASSES                                                         #
-###################################################################
+
 class conesearch(_basesearch):
     """
-    *The worker class for the conesearch module*
+    *The NED conesearch object*
 
     **Key Arguments**
 
     - ``log`` -- logger
     - ``ra`` -- ra
     - ``dec`` -- dec
-    - ``radiusArcsec`` -- radiusArcsec
+    - ``radiusArcsec`` -- the search radius in arcsecs
     - ``nearestOnly`` -- return only the nearest object from NED
-    - ``unclassified`` -- include the unclassified sources in the return results
+    - ``unclassified`` -- include the unclassified sources in the search results
     - ``quiet`` -- don't print to stdout
-    - ``listOfCoordinates`` -- list of coordinates ra dec radiusArcsec
-    - ``outputFilePath`` -- path to output file
+    - ``listOfCoordinates`` -- a list of `ra`, `dec`, and `radiusArcsec` (multiple sources)
+    - ``outputFilePath`` -- path of file to print results to. Default *False* (don't print to file)
     - ``verbose`` -- return more metadata for matches
-    
+    - ``redshift`` -- require a redshift for a source to appear in search results
 
-        - ``redshift`` -- redshift constraint
+    **Usage**
 
-    .. todo::
-
-        - @review: when complete, clean conesearch class
-        - @review: when complete add logging
-        - @review: when complete, decide whether to abstract class to another module
+    ```python
+    from neddy import conesearch
+    search = conesearch(
+        log=log,
+        ra=0.000,
+        dec=0.000,
+        radiusArcsec=5.0,
+        nearestOnly=False,
+        unclassified=True,
+        outputFilePath=False,
+        verbose=True,
+        redshift=False
+    )
+    results = search.get()
+    ```
     """
-    # Initialisation
 
     def __init__(
         self,
@@ -83,13 +80,11 @@ class conesearch(_basesearch):
         self.verbose = verbose
         self.redshift = redshift
 
-        # xt-self-arg-tmpx
-
         # VARIABLE DATA ATRRIBUTES
+        from past.utils import old_div
         self.arcmin = old_div(float(self.arcsec), 60.)
         self.resultSpacing = 30
 
-        # Initial Actions
         # CREATE A LIST IF SINGLE COORDINATES GIVEN
         if self.listOfCoordinates == False:
             self.listOfCoordinates = ["%(ra)s %(dec)s" % locals()]
@@ -97,22 +92,12 @@ class conesearch(_basesearch):
 
         return None
 
-    # METHOD ATTRIBUTES
     def get(self):
         """
-        *get the conesearch object*
-
-        **Return**
-
-        - ``conesearch``
-        
-
-        .. todo::
-
-            - @review: when complete, clean get method
-            - @review: when complete add logging
+        *return results of a NED conesearch*
         """
         self.log.debug('starting the ``get`` method')
+        from neddy import namesearch
 
         # SEARCH NED WITH SINGLE CONESEARCHES TO RETURN LIST OF MATCHED NAMES
         names, searchParams = self.get_crossmatch_names(
@@ -129,36 +114,33 @@ class conesearch(_basesearch):
             verbose=self.verbose,
             outputFilePath=self.outputFilePath
         )
-        search.get()
+        results = search.get()
 
         self.log.debug('completed the ``get`` method')
-        return conesearch
+        return results
 
-    # use the tab-trigger below for new method
     def _get_ned_query_url(
             self,
             raDeg,
             decDeg,
             arcsec):
         """
-        *single ned conesearch*
+        *build and return the NED conesearch URL for a single coordinate*
 
         **Key Arguments**
 
-        # -
-        
+        - ``raDeg`` -- conesearch centre RA
+        - ``decDeg`` -- conesearch centre DEC
+        - ``arcsec`` -- conesearch radius in arcsec
 
         **Return**
 
-        - None
-        
-
-        .. todo::
-
-            - @review: when complete, clean _get_ned_query_url method
-            - @review: when complete add logging
+        - ``url`` -- the conesearch URL
         """
         self.log.debug('starting the ``_get_ned_query_url`` method')
+
+        import urllib.parse
+        from past.utils import old_div
 
         radArcMin = old_div(float(arcsec), (60.))
 
@@ -210,31 +192,26 @@ class conesearch(_basesearch):
         self.log.debug('completed the ``_get_ned_query_url`` method')
         return url
 
-    # use the tab-trigger below for new method
     def get_crossmatch_names(
             self,
             listOfCoordinates=False,
             radiusArcsec=False):
         """
-        *get corssmatch names*
+        *return a list of NED sources found within the conesearch radius*
 
         **Key Arguments**
 
         - ``listOfCoordinates`` -- list of the coordinates to conesearch
         - ``radiusArcsec`` -- the search radius
-        
 
         **Return**
 
-        - None
-        
-
-        .. todo::
-
-            - @review: when complete, clean get_crossmatch_names method
-            - @review: when complete add logging
+        - ``names`` -- the names of the sources matched within the search radius
+        - ``searchParams`` -- the parameters of the search as read from the command-line/method call
         """
         self.log.debug('starting the ``get_crossmatch_names`` method')
+
+        from fundamentals.download import multiobject_download
 
         if listOfCoordinates == False:
             listOfCoordinates = self.listOfCoordinates
@@ -244,6 +221,8 @@ class conesearch(_basesearch):
         names = []
         searchParams = []
         nedUrls = []
+
+        # GENERATE NED CONESEARCH URLS
         for i, coord in enumerate(listOfCoordinates):
             url = self._get_ned_query_url(
                 raDeg=coord[0],
@@ -254,8 +233,9 @@ class conesearch(_basesearch):
 
         count = len(nedUrls)
         if count:
-            print("%(count)s NED conesearch URLs have been built. Requesting from NED ..." % locals())
+            print(f"{count} NED conesearch URLs have been built. Requesting from NED ...")
 
+        # DOWNLOAD THE RESULTS TO FILE
         localUrls = multiobject_download(
             urlList=nedUrls,
             downloadDirectory="/tmp",
@@ -271,23 +251,27 @@ class conesearch(_basesearch):
 
         count = len(localUrls)
         if count:
-            print("%(count)s conesearch results downloaded from NED" % locals())
+            print(f"{count} conesearch results downloaded from NED")
 
         for ii, nedResults in enumerate(localUrls):
             if nedResults == None:
                 thisUrl = nedUrls[ii]
                 self.log.error(
-                    'cound not download results for NED URL: %(thisUrl)s' % locals())
+                    f'cound not download results for NED URL: {thisUrl}')
                 continue
             i = int(nedResults.split("/")[-1].split("_")[0])
+
+            # PARSE CONESEARCH RESULTS INTO PYTHON DICTS
             results, resultLen = self._parse_the_ned_position_results(
                 ra=listOfCoordinates[i][0],
                 dec=listOfCoordinates[i][1],
                 nedResults=nedResults
             )
-            print("  %(resultLen)s returned from single NED conesearch" % locals())
+            print(f"  {resultLen} returned from single NED conesearch")
             if resultLen > 45000:
                 print(" To many results returned from single NED query ... aborting!")
+
+                # DO FINER SUB-SEARCHES TO COLLECT ALL NED MATCH RESULTS
                 subnames, subsearchParams = self._oversized_subqueries(
                     coordinate=listOfCoordinates[i],
                     radiusArcsec=radiusArcsec
@@ -304,32 +288,27 @@ class conesearch(_basesearch):
         self.log.debug('completed the ``get_crossmatch_names`` method')
         return names, searchParams
 
-    # use the tab-trigger below for new method
     def _oversized_subqueries(
             self,
             coordinate,
             radiusArcsec):
         """
-        *subdivide oversized query*
+        *subdivide an oversized query (> 50,000 matches in NED get truncated to 50000) into finer search areas*
 
         **Key Arguments**
 
-        # -
-        
+        - ``coordinate`` -- the crowd-field RA and DEC. 
+        - ``radiusArcsec`` -- the original search radius
 
         **Return**
 
-        - None
-        
-
-        .. todo::
-
-            - @review: when complete, clean _oversized_subqueries method
-            - @review: when complete add logging
+        - ``names`` -- the matched names
+        - ``searchParams`` -- the new search parameters
         """
         self.log.debug('starting the ``_oversized_subqueries`` method')
 
         import math
+        from past.utils import old_div
 
         smallerRadiusArcsec = old_div(radiusArcsec, 2.)
         print("Calculating 7 sub-disks for coordinates %(coordinate)s, with smaller search radius of %(smallerRadiusArcsec)s arcsec" % locals())
@@ -362,12 +341,6 @@ class conesearch(_basesearch):
         self.log.debug('completed the ``_oversized_subqueries`` method')
         return names, searchParams
 
-    # use the tab-trigger below for new method
-    # xt-class-method
-
-    # 5. @flagged: what actions of the base class(es) need ammending? ammend them here
-    # Override Method Attributes
-    # method-override-tmpx
 
 if __name__ == '__main__':
     main()

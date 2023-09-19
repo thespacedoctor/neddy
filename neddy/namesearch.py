@@ -1,33 +1,22 @@
 #!/usr/local/bin/python
 # encoding: utf-8
 """
-*A Name Searcher for NED*
+*Perform a NED name-search and return the metadata for the matched sources*
 
 :Author:
     David Young
 """
 from __future__ import print_function
+from neddy import _basesearch
+import os
+import sys
 from future import standard_library
 standard_library.install_aliases()
-from builtins import str
-import sys
-import os
-import readline
-import glob
-import pickle
-import urllib.request, urllib.parse, urllib.error
-from docopt import docopt
-from fundamentals.download import multiobject_download
-from fundamentals import tools, times
-from neddy import _basesearch
 
-###################################################################
-# CLASSES                                                         #
-###################################################################
 
 class namesearch(_basesearch):
     """
-    *The worker class for the namesearch module*
+    *Perform a NED name-search and return the metadata for the matched sources*
 
     **Key Arguments**
 
@@ -37,9 +26,21 @@ class namesearch(_basesearch):
     - ``verbose`` -- return more metadata for matches
     - ``searchParams`` -- list of dictionaries to prepend to results
     - ``outputFilePath`` -- path to file to output results to
-    
+
+    **Usage**
+
+    ```python
+    from neddy import namesearch
+    search = namesearch(
+        log=log,
+        names=objectName,
+        verbose=True,
+        outputFilePath="/path/to/output.csv"
+    )
+    results = search.get()
+    ```
+
     """
-    # Initialisation
 
     def __init__(
             self,
@@ -57,12 +58,7 @@ class namesearch(_basesearch):
         self.verbose = verbose
         self.searchParams = searchParams
         self.outputFilePath = outputFilePath
-        # xt-self-arg-tmpx
 
-        # VARIABLE DATA ATRRIBUTES
-        self.resultSpacing = 15
-
-        # Initial Actions
         # CREATE A LIST IF SINGLE NAME GIVEN
         os.environ['TERM'] = 'vt100'
         if not isinstance(self.names, list):
@@ -72,15 +68,13 @@ class namesearch(_basesearch):
 
         return None
 
-    # METHOD ATTRIBUTES
     def get(self):
         """
-        *get the namesearch object*
+        *perform NED name searches and return the results*
 
         **Return**
 
-        - ``results``
-        
+        - ``results`` -- the search results (list of dictionaries)
         """
         self.log.debug('starting the ``get`` method')
 
@@ -101,25 +95,13 @@ class namesearch(_basesearch):
     def _build_api_url_and_download_results(
             self):
         """
-        *build api url for NED to perform batch name queries*
-
-        **Key Arguments**
-
-        # -
-        
-
-        **Return**
-
-        - None
-        
-
-        .. todo::
-
-            - @review: when complete, clean _build_api_url_and_download_results method
-            - @review: when complete add logging
+        *build an API URL call for NED to perform batch name queries and download results*
         """
         self.log.debug(
             'completed the ````_build_api_url_and_download_results`` method')
+
+        import urllib.parse
+        from fundamentals.download import multiobject_download
 
         baseUrl = "https://ned.ipac.caltech.edu/cgi-bin/"
         command = "gmd"
@@ -188,74 +170,26 @@ class namesearch(_basesearch):
     def _output_results(
             self):
         """
-        *output results*
-
-        **Key Arguments**
-
-        # -
-        
-
-        **Return**
-
-        - None
-        
-
-        .. todo::
-
-            - @review: when complete, clean _output_results method
-            - @review: when complete add logging
+        *print the NED search results to STDOUT and/or an output file*
         """
         self.log.debug('starting the ``_output_results`` method')
 
-        content = ""
-        maxNameLen = 0
-
-        for r in self.results:
-            if maxNameLen < len(r["ned_name"]):
-                maxNameLen = len(r["ned_name"])
+        from fundamentals.renderer import list_of_dictionaries
 
         if len(self.results) == 0:
-            content += "No resuls found"
+            content = "No resuls found"
+            csvContent = "No resuls found"
         else:
-            thisHeader = "| "
-            thisLine = "| "
-            for head in self.headers:
-                if head == "ned_name":
-                    s = maxNameLen
-                else:
-                    s = self.resultSpacing
-                thisHeader += str(head).ljust(s,
-                                              ' ') + " | "
-                thisLine += ":".ljust(s,
-                                      '-') + " | "
-            content += thisHeader
-            content += "\n" + thisLine
-            for r in self.results:
-                thisRow = "| "
-                for head in self.headers:
-                    if head == "ned_name":
-                        s = maxNameLen
-                    else:
-                        s = self.resultSpacing
-                    thisRow += str(r[head]).ljust(s,
-                                                  ' ') + " | "
-                content += "\n" + thisRow
+            dataSet = list_of_dictionaries(
+                log=self.log,
+                listOfDictionaries=self.results,
+            )
+            content = dataSet.table(filepath=None)
+            if self.outputFilePath:
+                csvContent = dataSet.csv(filepath=self.outputFilePath)
 
         if self.quiet == False:
             print(content)
-        if self.outputFilePath:
-            import codecs
-            writeFile = codecs.open(
-                self.outputFilePath, encoding='utf-8', mode='w')
-            writeFile.write(content)
-            writeFile.close()
 
         self.log.debug('completed the ``_output_results`` method')
         return None
-
-    # use the tab-trigger below for new method
-    # xt-class-method
-
-    # 5. @flagged: what actions of the base class(es) need ammending? ammend them here
-    # Override Method Attributes
-    # method-override-tmpx
