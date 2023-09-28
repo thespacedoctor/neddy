@@ -7,8 +7,10 @@
 [![](https://img.shields.io/pypi/pyversions/neddy)](https://pypi.org/project/neddy/)
 [![](https://img.shields.io/pypi/v/neddy)](https://pypi.org/project/neddy/)
 [![](https://img.shields.io/conda/vn/conda-forge/neddy)](https://anaconda.org/conda-forge/neddy)
-[![](https://pepy.tech/badge/neddy)](https://pepy.tech/project/neddy)
+[![](https://static.pepy.tech/badge/neddy)](https://pepy.tech/project/neddy)
 [![](https://img.shields.io/github/license/thespacedoctor/neddy)](https://github.com/thespacedoctor/neddy)
+
+
 
 <!-- STATUS BADGES -->  
 
