@@ -62,7 +62,7 @@ If you use `neddy` in your work, please cite using the following BibTeX entry:
     author = {Young, David R.},
     doi = {10.5281/zenodo.8037632},
     license = {GPL-3.0-only},
-    year = 2018,
+    year = 2023,
     title = {{neddy. Query the Nasa Extra-Galactic from the command-line}},
     url = {https://zenodo.org/doi/10.5281/zenodo.8037632}
 }
