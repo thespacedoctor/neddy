@@ -1,6 +1,6 @@
 # neddy
 
-[![](https://zenodo.org/badge/35160792.svg)](https://zenodo.org/badge/latestdoi/35160792) 
+[![](https://zenodo.org/badge/DOI/10.5281/zenodo.8037632.svg)](https://zenodo.org/doi/10.5281/zenodo.8037632) 
 
 <!-- INFO BADGES -->  
 
@@ -60,10 +60,11 @@ If you use `neddy` in your work, please cite using the following BibTeX entry:
 ```bibtex
 @software{Young_neddy,
     author = {Young, David R.},
-    doi = {10.5281/zenodo.8037633},
+    doi = {10.5281/zenodo.8037632},
     license = {GPL-3.0-only},
-    title = {{neddy}},
-    url = {https://github.com/thespacedoctor/neddy}
+    year = 2023,
+    title = {{neddy. Query the Nasa Extra-Galactic from the command-line}},
+    url = {https://zenodo.org/doi/10.5281/zenodo.8037632}
 }
 ```
  
