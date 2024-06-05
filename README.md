@@ -10,8 +10,6 @@
 [![](https://static.pepy.tech/badge/neddy)](https://pepy.tech/project/neddy)
 [![](https://img.shields.io/github/license/thespacedoctor/neddy)](https://github.com/thespacedoctor/neddy)
 
-
-
 <!-- STATUS BADGES -->  
 
 [![](https://soxs-eso-data.org/ci/buildStatus/icon?job=neddy%2Fmaster&subject=build%20master)](https://soxs-eso-data.org/ci/blue/organizations/jenkins/neddy/activity?branch=master)
